@@ -7,7 +7,7 @@ category: bcp
 
 ipr: trust200902
 area: General
-workgroup: 
+workgroup: httpbis
 keyword: Internet-Draft
 
 stand_alone: yes
@@ -25,11 +25,12 @@ normative:
   RFC2119:
   RFC7230:
   RFC0793:
+  RFC7540:
 
 informative:
   RFC7430:
   RFC6928:
-  
+  RFC0896:
 
 --- abstract
 
@@ -93,21 +94,20 @@ Apple [deploying in iOS and OSX](https://developer.apple.com/videos/wwdc/2015/?i
 
     net.ipv4.tcp_slow_start_after_idle = 0
 
-# Nagle's Algorithm {{RFC896}}
+# Nagle's Algorithm
 
-Nagle's Algorithm is the mechanism that makes the TCP stack hold (small)
-outgoing packets for a short period of time so that it can potentionally merge
-that packet with the next outgoing one. It is optmized for throughput at the
-expence of latency.
+Nagle's Algorithm {{RFC0896}} is the mechanism that makes the TCP stack hold
+(small) outgoing packets for a short period of time so that it can
+potentionally merge that packet with the next outgoing one. It is optmized for
+throughput at the expence of latency.
 
 HTTP/2 in particular requires that the client can send a packet back fast even
 during transfes that are by all means single direction transfers. Even small
 delays in those sends can cause a significant performance loss.
 
     int one = 1;
-    setsockopt(descriptor, SOL_TCP, TCP_NODELAY, &one, sizeof(one));
+    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-With the 
 
 # Half-close
 
@@ -125,7 +125,6 @@ full close is expected following an error response to avoid RST on the client.
 
 TCP keep-alive likely disabled. App-level keep-alive is required for
 long-lived requests to detect failed peers.
-  
 
 
 # IANA Considerations
