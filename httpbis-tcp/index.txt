@@ -2,10 +2,10 @@
 
 
 
-Network Working Group                                        D. Stenberg
-Internet-Draft                                           October 1, 2015
-Intended status: Best Current Practice
-Expires: April 3, 2016
+httpbis                                                      D. Stenberg
+Internet-Draft                                                   Mozilla
+Intended status: Best Current Practice                  October 26, 2015
+Expires: April 28, 2016
 
 
                     TCP Performance Tuning for HTTP
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 3, 2016.
+   This Internet-Draft will expire on April 28, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Stenberg                  Expires April 3, 2016                 [Page 1]
+Stenberg                 Expires April 28, 2016                 [Page 1]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -69,23 +69,24 @@ Table of Contents
    6.  Tail Loss Probes  . . . . . . . . . . . . . . . . . . . . . .   3
    7.  Slow Start after Idle . . . . . . . . . . . . . . . . . . . .   3
    8.  Nagle's Algorithm . . . . . . . . . . . . . . . . . . . . . .   3
-   9.  Half-close  . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   10. Abort . . . . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   11. Keep-alive  . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   9.  Half-close  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   10. Abort . . . . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   11. Keep-alive  . . . . . . . . . . . . . . . . . . . . . . . . .   4
    12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
    13. Security Considerations . . . . . . . . . . . . . . . . . . .   4
    14. References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
      14.1.  Normative References . . . . . . . . . . . . . . . . . .   4
-     14.2.  Informative References . . . . . . . . . . . . . . . . .   4
-     14.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   4
+     14.2.  Informative References . . . . . . . . . . . . . . . . .   5
+     14.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
 
 1.  Introduction
 
-   HTTP [RFC7230] is currently defined to use TCP [RFC0793], and its
-   performance can depend greatly upon how TCP is configured.  This
-   document records best current practice for using HTTP over TCP, with
-   a focus on improving end-user perceived performance.
+   HTTP version 1.1 [RFC7230] as well as version 2 [RFC7540] are defined
+   to use TCP [RFC0793], and their performance can depend greatly upon
+   how TCP is configured.  This document records best current practice
+   for using HTTP over TCP, with a focus on improving end-user perceived
+   performance.
 
    These practices are generally applicable to HTTP/1 as well as HTTP/2,
    although some may note particular impact or nuance regarding a
@@ -105,15 +106,15 @@ Table of Contents
 
    TFO requires both client and server support, and additionally
    requires application knowledge, because the data sent on the SYN
-   cannot be idempotent.  Therefore, TFO can only be used on non-
 
 
 
-Stenberg                  Expires April 3, 2016                 [Page 2]
+Stenberg                 Expires April 28, 2016                 [Page 2]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
 
+   cannot be idempotent.  Therefore, TFO can only be used on non-
    idempotent, safe methods (e.g., GET and HEAD), or with intervening
    negotiation (e.g, using TLS).
 
@@ -144,7 +145,30 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 8.  Nagle's Algorithm
 
-   Most implementations disable
+   Nagle's Algorithm [RFC0896] is the mechanism that makes the TCP stack
+   hold (small) outgoing packets for a short period of time so that it
+   can potentionally merge that packet with the next outgoing one.  It
+   is optmized for throughput at the expence of latency.
+
+   HTTP/2 in particular requires that the client can send a packet back
+   fast even during transfes that are by all means single direction
+   transfers.  Even small delays in those sends can cause a significant
+   performance loss.
+
+   int one = 1;
+   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+
+
+
+
+
+
+
+
+Stenberg                 Expires April 28, 2016                 [Page 3]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
 
 9.  Half-close
 
@@ -162,14 +186,6 @@ Internet-Draft                TCP for HTTP                  October 2015
    TCP keep-alive likely disabled.  App-level keep-alive is required for
    long-lived requests to detect failed peers.
 
-
-
-
-Stenberg                  Expires April 3, 2016                 [Page 3]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
-
 12.  IANA Considerations
 
    This document does not require action from IANA.
@@ -185,14 +201,36 @@ Internet-Draft                TCP for HTTP                  October 2015
               <http://www.rfc-editor.org/info/rfc793>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, March 1997.
+              Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/
+              RFC2119, March 1997,
+              <http://www.rfc-editor.org/info/rfc2119>.
 
    [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Message Syntax and Routing", RFC
               7230, DOI 10.17487/RFC7230, June 2014,
               <http://www.rfc-editor.org/info/rfc7230>.
 
+   [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
+              Transfer Protocol Version 2 (HTTP/2)", RFC 7540, DOI
+              10.17487/RFC7540, May 2015,
+              <http://www.rfc-editor.org/info/rfc7540>.
+
+
+
+
+
+
+
+Stenberg                 Expires April 28, 2016                 [Page 4]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
 14.2.  Informative References
+
+   [RFC0896]  Nagle, J., "Congestion Control in IP/TCP Internetworks",
+              RFC 896, DOI 10.17487/RFC0896, January 1984,
+              <http://www.rfc-editor.org/info/rfc896>.
 
    [RFC6928]  Chu, J., Dukkipati, N., Cheng, Y., and M. Mathis,
               "Increasing TCP's Initial Window", RFC 6928, DOI 10.17487/
@@ -214,6 +252,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 Author's Address
 
    Daniel Stenberg
+   Mozilla
 
    Email: daniel@haxx.se
    URI:   http://daniel.haxx.se
@@ -221,4 +260,21 @@ Author's Address
 
 
 
-Stenberg                  Expires April 3, 2016                 [Page 4]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stenberg                 Expires April 28, 2016                 [Page 5]
