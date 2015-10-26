@@ -386,11 +386,13 @@
 <link href="#rfc.section.9" rel="Chapter" title="9 Half-close"/>
 <link href="#rfc.section.10" rel="Chapter" title="10 Abort"/>
 <link href="#rfc.section.11" rel="Chapter" title="11 Keep-alive"/>
-<link href="#rfc.section.12" rel="Chapter" title="12 IANA Considerations"/>
-<link href="#rfc.section.13" rel="Chapter" title="13 Security Considerations"/>
-<link href="#rfc.references" rel="Chapter" title="14 References"/>
-<link href="#rfc.references.1" rel="Chapter" title="14.1 Normative References"/>
-<link href="#rfc.references.2" rel="Chapter" title="14.2 Informative References"/>
+<link href="#rfc.section.12" rel="Chapter" title="12 TCP-Bound Authentications"/>
+<link href="#rfc.section.13" rel="Chapter" title="13 Closing Idle Connections"/>
+<link href="#rfc.section.14" rel="Chapter" title="14 IANA Considerations"/>
+<link href="#rfc.section.15" rel="Chapter" title="15 Security Considerations"/>
+<link href="#rfc.references" rel="Chapter" title="16 References"/>
+<link href="#rfc.references.1" rel="Chapter" title="16.1 Normative References"/>
+<link href="#rfc.references.2" rel="Chapter" title="16.2 Informative References"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -468,11 +470,13 @@
 <li>9.   <a href="#rfc.section.9">Half-close</a></li>
 <li>10.   <a href="#rfc.section.10">Abort</a></li>
 <li>11.   <a href="#rfc.section.11">Keep-alive</a></li>
-<li>12.   <a href="#rfc.section.12">IANA Considerations</a></li>
-<li>13.   <a href="#rfc.section.13">Security Considerations</a></li>
-<li>14.   <a href="#rfc.references">References</a></li>
-<li>14.1.   <a href="#rfc.references.1">Normative References</a></li>
-<li>14.2.   <a href="#rfc.references.2">Informative References</a></li>
+<li>12.   <a href="#rfc.section.12">TCP-Bound Authentications</a></li>
+<li>13.   <a href="#rfc.section.13">Closing Idle Connections</a></li>
+<li>14.   <a href="#rfc.section.14">IANA Considerations</a></li>
+<li>15.   <a href="#rfc.section.15">Security Considerations</a></li>
+<li>16.   <a href="#rfc.references">References</a></li>
+<li>16.1.   <a href="#rfc.references.1">Normative References</a></li>
+<li>16.2.   <a href="#rfc.references.2">Informative References</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
 
@@ -498,27 +502,36 @@
   <a href="http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01">draft</a>
 </p>
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#slow-start-after-idle" id="slow-start-after-idle">Slow Start after Idle</a></h1>
+<p id="rfc.section.7.p.1">Slow-start is one of the algorithms that TCP uses to control congestion inside the network. It is also known as the exponential growth phase. Each TCP connection will start off in slow-start but will also go back to slow-start after a certain amount of idle time.</p>
+<p id="rfc.section.7.p.2">In Linux systems you can prevent the TCP stack from going back to slow-start after idle by settting</p>
 <pre>
 net.ipv4.tcp_slow_start_after_idle = 0
 </pre>
 <h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#nagles-algorithm" id="nagles-algorithm">Nagle&#8217;s Algorithm</a></h1>
 <p id="rfc.section.8.p.1">Nagle&#8217;s Algorithm <a href="#RFC0896">[RFC0896]</a> is the mechanism that makes the TCP stack hold (small) outgoing packets for a short period of time so that it can potentionally merge that packet with the next outgoing one. It is optmized for throughput at the expence of latency.</p>
-<p id="rfc.section.8.p.2">HTTP/2 in particular requires that the client can send a packet back fast even during transfes that are by all means single direction transfers. Even small delays in those sends can cause a significant performance loss.</p>
+<p id="rfc.section.8.p.2">HTTP/2 in particular requires that the client can send a packet back fast even during transfers that are perceived as single direction transfers. Even small delays in those sends can cause a significant performance loss.</p>
+<p id="rfc.section.8.p.3">HTTP/1.1 is also affected, especially when sending off a full request in a single write() system call.</p>
+<p id="rfc.section.8.p.4">In POSIX systems you switch it off like this:</p>
 <pre>
 int one = 1;
 setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
 </pre>
 <h1 id="rfc.section.9"><a href="#rfc.section.9">9.</a> <a href="#half-close" id="half-close">Half-close</a></h1>
 <p id="rfc.section.9.p.1">Client or server is free to half-close after a request or response has been completed; or when there is no pending stream in HTTP/2.</p>
+<p id="rfc.section.9.p.2">Half-closing is sometimes the only way for a server to make sure it closes down connections cleanly so that it doesn&#8217;t accept more requests while still allowing clients to receive the ongoing responses.</p>
 <h1 id="rfc.section.10"><a href="#rfc.section.10">10.</a> <a href="#abort" id="abort">Abort</a></h1>
 <p id="rfc.section.10.p.1">No client abort for HTTP/1.1 after the request body has been sent. Delayed full close is expected following an error response to avoid RST on the client.</p>
 <h1 id="rfc.section.11"><a href="#rfc.section.11">11.</a> <a href="#keep-alive" id="keep-alive">Keep-alive</a></h1>
-<p id="rfc.section.11.p.1">TCP keep-alive likely disabled. App-level keep-alive is required for long-lived requests to detect failed peers.</p>
-<h1 id="rfc.section.12"><a href="#rfc.section.12">12.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a></h1>
-<p id="rfc.section.12.p.1">This document does not require action from IANA.</p>
-<h1 id="rfc.section.13"><a href="#rfc.section.13">13.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
-<h1 id="rfc.references"><a href="#rfc.references">14.</a> References</h1>
-<h1 id="rfc.references.1"><a href="#rfc.references.1">14.1.</a> Normative References</h1>
+<p id="rfc.section.11.p.1">TCP keep-alive is likely disabled - at least on mobile clients for energy saving purposes. App-level keep-alive is then required for long-lived requests to detect failed peers or connections reset by stateful firewalls etc.</p>
+<h1 id="rfc.section.12"><a href="#rfc.section.12">12.</a> <a href="#tcp-bound-authentications" id="tcp-bound-authentications">TCP-Bound Authentications</a></h1>
+<p id="rfc.section.12.p.1">TBD</p>
+<h1 id="rfc.section.13"><a href="#rfc.section.13">13.</a> <a href="#closing-idle-connections" id="closing-idle-connections">Closing Idle Connections</a></h1>
+<p id="rfc.section.13.p.1">TBD</p>
+<h1 id="rfc.section.14"><a href="#rfc.section.14">14.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a></h1>
+<p id="rfc.section.14.p.1">This document does not require action from IANA.</p>
+<h1 id="rfc.section.15"><a href="#rfc.section.15">15.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
+<h1 id="rfc.references"><a href="#rfc.references">16.</a> References</h1>
+<h1 id="rfc.references.1"><a href="#rfc.references.1">16.1.</a> Normative References</h1>
 <table>
   <tbody>
     <tr>
@@ -547,7 +560,7 @@ setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
     </tr>
   </tbody>
 </table>
-<h1 id="rfc.references.2"><a href="#rfc.references.2">14.2.</a> Informative References</h1>
+<h1 id="rfc.references.2"><a href="#rfc.references.2">16.2.</a> Informative References</h1>
 <table>
   <tbody>
     <tr>

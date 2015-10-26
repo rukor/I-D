@@ -72,13 +72,15 @@ Table of Contents
    9.  Half-close  . . . . . . . . . . . . . . . . . . . . . . . . .   4
    10. Abort . . . . . . . . . . . . . . . . . . . . . . . . . . . .   4
    11. Keep-alive  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
-   13. Security Considerations . . . . . . . . . . . . . . . . . . .   4
-   14. References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     14.1.  Normative References . . . . . . . . . . . . . . . . . .   4
-     14.2.  Informative References . . . . . . . . . . . . . . . . .   5
-     14.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   5
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
+   12. TCP-Bound Authentications . . . . . . . . . . . . . . . . . .   4
+   13. Closing Idle Connections  . . . . . . . . . . . . . . . . . .   4
+   14. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   15. Security Considerations . . . . . . . . . . . . . . . . . . .   5
+   16. References  . . . . . . . . . . . . . . . . . . . . . . . . .   5
+     16.1.  Normative References . . . . . . . . . . . . . . . . . .   5
+     16.2.  Informative References . . . . . . . . . . . . . . . . .   5
+     16.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
 
 1.  Introduction
 
@@ -104,8 +106,6 @@ Table of Contents
    TCP handshake, thereby allowing a request to be sent without any
    delay if a connection is not open.
 
-   TFO requires both client and server support, and additionally
-   requires application knowledge, because the data sent on the SYN
 
 
 
@@ -114,6 +114,8 @@ Stenberg                 Expires April 28, 2016                 [Page 2]
 Internet-Draft                TCP for HTTP                  October 2015
 
 
+   TFO requires both client and server support, and additionally
+   requires application knowledge, because the data sent on the SYN
    cannot be idempotent.  Therefore, TFO can only be used on non-
    idempotent, safe methods (e.g., GET and HEAD), or with intervening
    negotiation (e.g, using TLS).
@@ -141,6 +143,14 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 7.  Slow Start after Idle
 
+   Slow-start is one of the algorithms that TCP uses to control
+   congestion inside the network.  It is also known as the exponential
+   growth phase.  Each TCP connection will start off in slow-start but
+   will also go back to slow-start after a certain amount of idle time.
+
+   In Linux systems you can prevent the TCP stack from going back to
+   slow-start after idle by settting
+
    net.ipv4.tcp_slow_start_after_idle = 0
 
 8.  Nagle's Algorithm
@@ -151,17 +161,7 @@ Internet-Draft                TCP for HTTP                  October 2015
    is optmized for throughput at the expence of latency.
 
    HTTP/2 in particular requires that the client can send a packet back
-   fast even during transfes that are by all means single direction
-   transfers.  Even small delays in those sends can cause a significant
-   performance loss.
-
-   int one = 1;
-   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
-
-
-
-
-
+   fast even during transfers that are perceived as single direction
 
 
 
@@ -170,10 +170,26 @@ Stenberg                 Expires April 28, 2016                 [Page 3]
 Internet-Draft                TCP for HTTP                  October 2015
 
 
+   transfers.  Even small delays in those sends can cause a significant
+   performance loss.
+
+   HTTP/1.1 is also affected, especially when sending off a full request
+   in a single write() system call.
+
+   In POSIX systems you switch it off like this:
+
+   int one = 1;
+   setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+
 9.  Half-close
 
    Client or server is free to half-close after a request or response
    has been completed; or when there is no pending stream in HTTP/2.
+
+   Half-closing is sometimes the only way for a server to make sure it
+   closes down connections cleanly so that it doesn't accept more
+   requests while still allowing clients to receive the ongoing
+   responses.
 
 10.  Abort
 
@@ -183,18 +199,38 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 11.  Keep-alive
 
-   TCP keep-alive likely disabled.  App-level keep-alive is required for
-   long-lived requests to detect failed peers.
+   TCP keep-alive is likely disabled - at least on mobile clients for
+   energy saving purposes.  App-level keep-alive is then required for
+   long-lived requests to detect failed peers or connections reset by
+   stateful firewalls etc.
 
-12.  IANA Considerations
+12.  TCP-Bound Authentications
+
+   TBD
+
+13.  Closing Idle Connections
+
+   TBD
+
+14.  IANA Considerations
 
    This document does not require action from IANA.
 
-13.  Security Considerations
 
-14.  References
 
-14.1.  Normative References
+
+
+
+Stenberg                 Expires April 28, 2016                 [Page 4]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
+15.  Security Considerations
+
+16.  References
+
+16.1.  Normative References
 
    [RFC0793]  Postel, J., "Transmission Control Protocol", STD 7, RFC
               793, DOI 10.17487/RFC0793, September 1981,
@@ -215,18 +251,7 @@ Internet-Draft                TCP for HTTP                  October 2015
               10.17487/RFC7540, May 2015,
               <http://www.rfc-editor.org/info/rfc7540>.
 
-
-
-
-
-
-
-Stenberg                 Expires April 28, 2016                 [Page 4]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
-
-14.2.  Informative References
+16.2.  Informative References
 
    [RFC0896]  Nagle, J., "Congestion Control in IP/TCP Internetworks",
               RFC 896, DOI 10.17487/RFC0896, January 1984,
@@ -243,11 +268,19 @@ Internet-Draft                TCP for HTTP                  October 2015
               RFC7430, July 2015,
               <http://www.rfc-editor.org/info/rfc7430>.
 
-14.3.  URIs
+16.3.  URIs
 
    [1] https://developer.apple.com/videos/wwdc/2015/?id=719
 
    [2] http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01
+
+
+
+
+Stenberg                 Expires April 28, 2016                 [Page 5]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
 
 Author's Address
 
@@ -277,4 +310,27 @@ Author's Address
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 5]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stenberg                 Expires April 28, 2016                 [Page 6]
