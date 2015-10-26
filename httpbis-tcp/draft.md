@@ -40,9 +40,9 @@ This document records current best practice for using all versions of HTTP over 
 
 # Introduction
 
-HTTP version 1.1 {{RFC7230}} as well as version 2 {{RFC7540}} are defined to
-use TCP {{RFC0793}}, and their performance can depend greatly upon how TCP is
-configured. This document records best current practice for using HTTP over
+HTTP version 1.1 {{RFC7230}} as well as HTTP version 2 {{RFC7540}} are defined
+to use TCP {{RFC0793}}, and their performance can depend greatly upon how TCP
+is configured. This document records best current practice for using HTTP over
 TCP, with a focus on improving end-user perceived performance.
 
 These practices are generally applicable to HTTP/1 as well as HTTP/2, although
@@ -92,6 +92,14 @@ Apple [deploying in iOS and OSX](https://developer.apple.com/videos/wwdc/2015/?i
 
 # Slow Start after Idle
 
+Slow-start is one of the algorithms that TCP uses to control congestion inside
+the network. It is also known as the exponential growth phase. Each TCP
+connection will start off in slow-start but will also go back to slow-start
+after a certain amount of idle time.
+
+In Linux systems you can prevent the TCP stack from going back to slow-start
+after idle by settting
+
     net.ipv4.tcp_slow_start_after_idle = 0
 
 # Nagle's Algorithm
@@ -102,8 +110,13 @@ potentionally merge that packet with the next outgoing one. It is optmized for
 throughput at the expence of latency.
 
 HTTP/2 in particular requires that the client can send a packet back fast even
-during transfes that are by all means single direction transfers. Even small
+during transfers that are perceived as single direction transfers. Even small
 delays in those sends can cause a significant performance loss.
+
+HTTP/1.1 is also affected, especially when sending off a full request in a
+single write() system call.
+
+In POSIX systems you switch it off like this:
 
     int one = 1;
     setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
@@ -114,18 +127,28 @@ delays in those sends can cause a significant performance loss.
 Client or server is free to half-close after a request or response has been
 completed; or when there is no pending stream in HTTP/2.
 
+Half-closing is sometimes the only way for a server to make sure it closes
+down connections cleanly so that it doesn't accept more requests while still
+allowing clients to receive the ongoing responses.
 
 # Abort
 
 No client abort for HTTP/1.1 after the request body has been sent. Delayed
 full close is expected following an error response to avoid RST on the client.
 
-
 # Keep-alive
 
-TCP keep-alive likely disabled. App-level keep-alive is required for
-long-lived requests to detect failed peers.
+TCP keep-alive is likely disabled - at least on mobile clients for energy
+saving purposes. App-level keep-alive is then required for long-lived requests
+to detect failed peers or connections reset by stateful firewalls etc.
 
+# TCP-Bound Authentications
+
+TBD
+
+# Closing Idle Connections
+
+TBD
 
 # IANA Considerations
 
