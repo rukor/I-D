@@ -158,3 +158,8 @@ This document does not require action from IANA.
 
 
 --- back
+
+# Acknowledgements
+
+This specification builds upon previous work and help from
+Mark Nottingham,
