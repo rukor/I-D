@@ -63,8 +63,8 @@ handshake, thereby allowing a request to be sent without any delay if a
 connection is not open.
 
 TFO requires both client and server support, and additionally requires
-application knowledge, because the data sent on the SYN cannot be
-non-idempotent. Therefore, TFO can only be used on idempotent, safe methods
+application knowledge, because the data sent on the SYN needs to be
+idempotent. Therefore, TFO can only be used on idempotent, safe HTTP methods
 (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).
 
 Support for TFO is growing in client platforms, especially mobile, due to the
