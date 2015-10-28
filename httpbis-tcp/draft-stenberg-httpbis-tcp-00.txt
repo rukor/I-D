@@ -4,8 +4,8 @@
 
 httpbis                                                      D. Stenberg
 Internet-Draft                                                   Mozilla
-Intended status: Best Current Practice                  October 26, 2015
-Expires: April 28, 2016
+Intended status: Best Current Practice                  October 28, 2015
+Expires: April 30, 2016
 
 
                     TCP Performance Tuning for HTTP
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 28, 2016.
+   This Internet-Draft will expire on April 30, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 1]
+Stenberg                 Expires April 30, 2016                 [Page 1]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -84,11 +84,11 @@ Table of Contents
 
 1.  Introduction
 
-   HTTP version 1.1 [RFC7230] as well as version 2 [RFC7540] are defined
-   to use TCP [RFC0793], and their performance can depend greatly upon
-   how TCP is configured.  This document records best current practice
-   for using HTTP over TCP, with a focus on improving end-user perceived
-   performance.
+   HTTP version 1.1 [RFC7230] as well as HTTP version 2 [RFC7540] are
+   defined to use TCP [RFC0793], and their performance can depend
+   greatly upon how TCP is configured.  This document records best
+   current practice for using HTTP over TCP, with a focus on improving
+   end-user perceived performance.
 
    These practices are generally applicable to HTTP/1 as well as HTTP/2,
    although some may note particular impact or nuance regarding a
@@ -109,14 +109,14 @@ Table of Contents
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 2]
+Stenberg                 Expires April 30, 2016                 [Page 2]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
 
    TFO requires both client and server support, and additionally
    requires application knowledge, because the data sent on the SYN
-   cannot be idempotent.  Therefore, TFO can only be used on non-
+   cannot be non-idempotent.  Therefore, TFO can only be used on
    idempotent, safe methods (e.g., GET and HEAD), or with intervening
    negotiation (e.g, using TLS).
 
@@ -165,7 +165,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 3]
+Stenberg                 Expires April 30, 2016                 [Page 3]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -221,7 +221,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 4]
+Stenberg                 Expires April 30, 2016                 [Page 4]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -277,7 +277,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 5]
+Stenberg                 Expires April 30, 2016                 [Page 5]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -333,4 +333,4 @@ Author's Address
 
 
 
-Stenberg                 Expires April 28, 2016                 [Page 6]
+Stenberg                 Expires April 30, 2016                 [Page 6]

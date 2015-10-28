@@ -50,9 +50,9 @@
 
 <section anchor="introduction" title="Introduction">
 
-<t>HTTP version 1.1 <xref target="RFC7230"/> as well as version 2 <xref target="RFC7540"/> are defined to
-use TCP <xref target="RFC0793"/>, and their performance can depend greatly upon how TCP is
-configured. This document records best current practice for using HTTP over
+<t>HTTP version 1.1 <xref target="RFC7230"/> as well as HTTP version 2 <xref target="RFC7540"/> are defined
+to use TCP <xref target="RFC0793"/>, and their performance can depend greatly upon how TCP
+is configured. This document records best current practice for using HTTP over
 TCP, with a focus on improving end-user perceived performance.</t>
 
 <t>These practices are generally applicable to HTTP/1 as well as HTTP/2, although
@@ -75,7 +75,7 @@ connection is not open.</t>
 
 <t>TFO requires both client and server support, and additionally requires
 application knowledge, because the data sent on the SYN cannot be
-idempotent. Therefore, TFO can only be used on non-idempotent, safe methods
+non-idempotent. Therefore, TFO can only be used on idempotent, safe methods
 (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).</t>
 
 <t>Support for TFO is growing in client platforms, especially mobile, due to the

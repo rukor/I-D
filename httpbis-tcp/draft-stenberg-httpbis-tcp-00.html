@@ -401,7 +401,7 @@
 
   <meta name="dct.creator" content="Stenberg, D." />
   <meta name="dct.identifier" content="urn:ietf:id:draft-stenberg-httpbis-tcp-00" />
-  <meta name="dct.issued" scheme="ISO8601" content="2015-10-26" />
+  <meta name="dct.issued" scheme="ISO8601" content="2015-10-28" />
   <meta name="dct.abstract" content="This document records current best practice for using all versions of HTTP over TCP." />
   <meta name="description" content="This document records current best practice for using all versions of HTTP over TCP." />
 
@@ -422,10 +422,10 @@
 </tr>
 <tr>
   <td class="left">Intended status: Best Current Practice</td>
-  <td class="right">October 26, 2015</td>
+  <td class="right">October 28, 2015</td>
 </tr>
 <tr>
-  <td class="left">Expires: April 28, 2016</td>
+  <td class="left">Expires: April 30, 2016</td>
   <td class="right"></td>
 </tr>
 
@@ -446,7 +446,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on April 28, 2016.</p>
+<p>This Internet-Draft will expire on April 30, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -483,13 +483,13 @@
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
-<p id="rfc.section.1.p.1">HTTP version 1.1 <a href="#RFC7230">[RFC7230]</a> as well as version 2 <a href="#RFC7540">[RFC7540]</a> are defined to use TCP <a href="#RFC0793">[RFC0793]</a>, and their performance can depend greatly upon how TCP is configured. This document records best current practice for using HTTP over TCP, with a focus on improving end-user perceived performance.</p>
+<p id="rfc.section.1.p.1">HTTP version 1.1 <a href="#RFC7230">[RFC7230]</a> as well as HTTP version 2 <a href="#RFC7540">[RFC7540]</a> are defined to use TCP <a href="#RFC0793">[RFC0793]</a>, and their performance can depend greatly upon how TCP is configured. This document records best current practice for using HTTP over TCP, with a focus on improving end-user perceived performance.</p>
 <p id="rfc.section.1.p.2">These practices are generally applicable to HTTP/1 as well as HTTP/2, although some may note particular impact or nuance regarding a particular protocol version.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#tcp-fast-open" id="tcp-fast-open">TCP Fast Open</a></h1>
 <p id="rfc.section.2.p.1">TCP Fast Open (a.k.a. TFO, <a href="#RFC7430">[RFC7430]</a>) allows data to be sent on the TCP handshake, thereby allowing a request to be sent without any delay if a connection is not open.</p>
-<p id="rfc.section.2.p.2">TFO requires both client and server support, and additionally requires application knowledge, because the data sent on the SYN cannot be idempotent. Therefore, TFO can only be used on non-idempotent, safe methods (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).</p>
+<p id="rfc.section.2.p.2">TFO requires both client and server support, and additionally requires application knowledge, because the data sent on the SYN cannot be non-idempotent. Therefore, TFO can only be used on idempotent, safe methods (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).</p>
 <p id="rfc.section.2.p.3">Support for TFO is growing in client platforms, especially mobile, due to the significant performance advantage it gives.</p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#initial-congestion-window" id="initial-congestion-window">Initial Congestion Window</a></h1>
 <p><a href="#RFC6928">[RFC6928]</a> specifies an initial congestion window of 10, and is now fairly widely deployed server-side. There has been experimentation with larger initial windows, in combination with packet pacing.</p>
