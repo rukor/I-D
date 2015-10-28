@@ -64,7 +64,7 @@ connection is not open.
 
 TFO requires both client and server support, and additionally requires
 application knowledge, because the data sent on the SYN cannot be
-idempotent. Therefore, TFO can only be used on non-idempotent, safe methods
+non-idempotent. Therefore, TFO can only be used on idempotent, safe methods
 (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).
 
 Support for TFO is growing in client platforms, especially mobile, due to the
