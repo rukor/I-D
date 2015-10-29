@@ -4,8 +4,8 @@
 
 httpbis                                                      D. Stenberg
 Internet-Draft                                                   Mozilla
-Intended status: Best Current Practice                  October 28, 2015
-Expires: April 30, 2016
+Intended status: Best Current Practice                  October 29, 2015
+Expires: May 1, 2016
 
 
                     TCP Performance Tuning for HTTP
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 30, 2016.
+   This Internet-Draft will expire on May 1, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Stenberg                 Expires April 30, 2016                 [Page 1]
+Stenberg                   Expires May 1, 2016                  [Page 1]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -80,6 +80,7 @@ Table of Contents
      16.1.  Normative References . . . . . . . . . . . . . . . . . .   5
      16.2.  Informative References . . . . . . . . . . . . . . . . .   5
      16.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   6
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
 
 1.  Introduction
@@ -108,17 +109,16 @@ Table of Contents
 
 
 
-
-Stenberg                 Expires April 30, 2016                 [Page 2]
+Stenberg                   Expires May 1, 2016                  [Page 2]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
 
    TFO requires both client and server support, and additionally
    requires application knowledge, because the data sent on the SYN
-   cannot be non-idempotent.  Therefore, TFO can only be used on
-   idempotent, safe methods (e.g., GET and HEAD), or with intervening
-   negotiation (e.g, using TLS).
+   needs to be idempotent.  Therefore, TFO can only be used on
+   idempotent, safe HTTP methods (e.g., GET and HEAD), or with
+   intervening negotiation (e.g, using TLS).
 
    Support for TFO is growing in client platforms, especially mobile,
    due to the significant performance advantage it gives.
@@ -165,7 +165,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                 Expires April 30, 2016                 [Page 3]
+Stenberg                   Expires May 1, 2016                  [Page 3]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -221,7 +221,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                 Expires April 30, 2016                 [Page 4]
+Stenberg                   Expires May 1, 2016                  [Page 4]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -277,10 +277,15 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                 Expires April 30, 2016                 [Page 5]
+Stenberg                   Expires May 1, 2016                  [Page 5]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
+
+Appendix A.  Acknowledgements
+
+   This specification builds upon previous work and help from Mark
+   Nottingham,
 
 Author's Address
 
@@ -328,9 +333,4 @@ Author's Address
 
 
 
-
-
-
-
-
-Stenberg                 Expires April 30, 2016                 [Page 6]
+Stenberg                   Expires May 1, 2016                  [Page 6]
