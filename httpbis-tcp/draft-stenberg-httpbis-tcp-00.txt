@@ -103,7 +103,7 @@ Table of Contents
 
 2.  TCP Fast Open
 
-   TCP Fast Open (a.k.a.  TFO, [RFC7430]) allows data to be sent on the
+   TCP Fast Open (a.k.a.  TFO, [RFC7413]) allows data to be sent on the
    TCP handshake, thereby allowing a request to be sent without any
    delay if a connection is not open.
 
@@ -262,17 +262,17 @@ Internet-Draft                TCP for HTTP                  October 2015
               RFC6928, April 2013,
               <http://www.rfc-editor.org/info/rfc6928>.
 
-   [RFC7430]  Bagnulo, M., Paasch, C., Gont, F., Bonaventure, O., and C.
-              Raiciu, "Analysis of Residual Threats and Possible Fixes
-              for Multipath TCP (MPTCP)", RFC 7430, DOI 10.17487/
-              RFC7430, July 2015,
-              <http://www.rfc-editor.org/info/rfc7430>.
+   [RFC7413]  Cheng, Y., Chu, J., Radhakrishnan, S., and A. Jain, "TCP
+              Fast Open", RFC 7413, DOI 10.17487/RFC7413, December 2014,
+              <http://www.rfc-editor.org/info/rfc7413>.
 
 16.3.  URIs
 
    [1] https://developer.apple.com/videos/wwdc/2015/?id=719
 
    [2] http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01
+
+
 
 
 

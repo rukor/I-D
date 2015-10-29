@@ -28,7 +28,7 @@ normative:
   RFC7540:
 
 informative:
-  RFC7430:
+  RFC7413:
   RFC6928:
   RFC0896:
 
@@ -58,7 +58,7 @@ interpreted as described in {{RFC2119}}.
 
 # TCP Fast Open
 
-TCP Fast Open (a.k.a. TFO, {{RFC7430}}) allows data to be sent on the TCP
+TCP Fast Open (a.k.a. TFO, {{RFC7413}}) allows data to be sent on the TCP
 handshake, thereby allowing a request to be sent without any delay if a
 connection is not open.
 

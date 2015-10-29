@@ -69,7 +69,7 @@ interpreted as described in <xref target="RFC2119"/>.</t>
 </section>
 <section anchor="tcp-fast-open" title="TCP Fast Open">
 
-<t>TCP Fast Open (a.k.a. TFO, <xref target="RFC7430"/>) allows data to be sent on the TCP
+<t>TCP Fast Open (a.k.a. TFO, <xref target="RFC7413"/>) allows data to be sent on the TCP
 handshake, thereby allowing a request to be sent without any delay if a
 connection is not open.</t>
 
@@ -259,19 +259,18 @@ to detect failed peers or connections reset by stateful firewalls etc.</t>
 
 
 
-<reference  anchor='RFC7430' target='http://www.rfc-editor.org/info/rfc7430'>
+<reference  anchor='RFC7413' target='http://www.rfc-editor.org/info/rfc7413'>
 <front>
-<title>Analysis of Residual Threats and Possible Fixes for Multipath TCP (MPTCP)</title>
-<author initials='M.' surname='Bagnulo' fullname='M. Bagnulo'><organization /></author>
-<author initials='C.' surname='Paasch' fullname='C. Paasch'><organization /></author>
-<author initials='F.' surname='Gont' fullname='F. Gont'><organization /></author>
-<author initials='O.' surname='Bonaventure' fullname='O. Bonaventure'><organization /></author>
-<author initials='C.' surname='Raiciu' fullname='C. Raiciu'><organization /></author>
-<date year='2015' month='July' />
-<abstract><t>This document analyzes the residual threats for Multipath TCP (MPTCP) and explores possible solutions to address them.</t></abstract>
+<title>TCP Fast Open</title>
+<author initials='Y.' surname='Cheng' fullname='Y. Cheng'><organization /></author>
+<author initials='J.' surname='Chu' fullname='J. Chu'><organization /></author>
+<author initials='S.' surname='Radhakrishnan' fullname='S. Radhakrishnan'><organization /></author>
+<author initials='A.' surname='Jain' fullname='A. Jain'><organization /></author>
+<date year='2014' month='December' />
+<abstract><t>This document describes an experimental TCP mechanism called TCP Fast Open (TFO).  TFO allows data to be carried in the SYN and SYN-ACK packets and consumed by the receiving end during the initial connection handshake, and saves up to one full round-trip time (RTT) compared to the standard TCP, which requires a three-way handshake (3WHS) to complete before data can be exchanged.  However, TFO deviates from the standard TCP semantics, since the data in the SYN could be replayed to an application in some rare circumstances.  Applications should not use TFO unless they can tolerate this issue, as detailed in the Applicability section.</t></abstract>
 </front>
-<seriesInfo name='RFC' value='7430'/>
-<seriesInfo name='DOI' value='10.17487/RFC7430'/>
+<seriesInfo name='RFC' value='7413'/>
+<seriesInfo name='DOI' value='10.17487/RFC7413'/>
 </reference>
 
 

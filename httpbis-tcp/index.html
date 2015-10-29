@@ -490,7 +490,7 @@
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#tcp-fast-open" id="tcp-fast-open">TCP Fast Open</a></h1>
-<p id="rfc.section.2.p.1">TCP Fast Open (a.k.a. TFO, <a href="#RFC7430">[RFC7430]</a>) allows data to be sent on the TCP handshake, thereby allowing a request to be sent without any delay if a connection is not open.</p>
+<p id="rfc.section.2.p.1">TCP Fast Open (a.k.a. TFO, <a href="#RFC7413">[RFC7413]</a>) allows data to be sent on the TCP handshake, thereby allowing a request to be sent without any delay if a connection is not open.</p>
 <p id="rfc.section.2.p.2">TFO requires both client and server support, and additionally requires application knowledge, because the data sent on the SYN needs to be idempotent. Therefore, TFO can only be used on idempotent, safe HTTP methods (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).</p>
 <p id="rfc.section.2.p.3">Support for TFO is growing in client platforms, especially mobile, due to the significant performance advantage it gives.</p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#initial-congestion-window" id="initial-congestion-window">Initial Congestion Window</a></h1>
@@ -579,9 +579,9 @@ setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
     </tr>
     <tr>
       <td class="reference">
-        <b id="RFC7430">[RFC7430]</b>
+        <b id="RFC7413">[RFC7413]</b>
       </td>
-      <td class="top"><a>Bagnulo, M.</a>, <a>Paasch, C.</a>, <a>Gont, F.</a>, <a>Bonaventure, O.</a> and <a>C. Raiciu</a>, "<a href="http://tools.ietf.org/html/rfc7430">Analysis of Residual Threats and Possible Fixes for Multipath TCP (MPTCP)</a>", RFC 7430, DOI 10.17487/RFC7430, July 2015.</td>
+      <td class="top"><a>Cheng, Y.</a>, <a>Chu, J.</a>, <a>Radhakrishnan, S.</a> and <a>A. Jain</a>, "<a href="http://tools.ietf.org/html/rfc7413">TCP Fast Open</a>", RFC 7413, DOI 10.17487/RFC7413, December 2014.</td>
     </tr>
   </tbody>
 </table>
