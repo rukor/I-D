@@ -114,11 +114,6 @@ connections when it is safe from the network stack’s perspective.
 
     net.ipv4.tcp_tw_reuse = 1
 
-## TCP SYN flood handling
-
-TCP SYN Flood mitigations {{RFC4987}} are necessary and there will be
-thresholds to tweak.
-
 ## Give the the TCP stack enough memory
 
 Systems meant to handle and serve a huge number of TCP connections at high
@@ -137,7 +132,7 @@ You may have to increase the largest allowed window size.
     net.core.rmem_max = 16777216
     net.core.wmem_max = 16777216
 
-# Timers and time-outs
+## Timers and time-outs
 
 Fail fast. Do not allow very long time-outs. Wasting several minutes for
 various network related attempts won't make any users happy.
@@ -145,7 +140,9 @@ various network related attempts won't make any users happy.
 Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations
 instead, or redirects, 202s or similar.
 
-# TCP Fast Open
+# TCP handshake
+
+## TCP Fast Open
 
 TCP Fast Open (a.k.a. TFO, {{RFC7413}}) allows data to be sent on the TCP
 handshake, thereby allowing a request to be sent without any delay if a
@@ -159,7 +156,7 @@ idempotent. Therefore, TFO can only be used on idempotent, safe HTTP methods
 Support for TFO is growing in client platforms, especially mobile, due to the
 significant performance advantage it gives.
 
-# Initial Congestion Window
+## Initial Congestion Window
 
 {{RFC6928}} specifies an initial congestion window of 10, and is now fairly
 widely deployed server-side. There has been experimentation with larger
@@ -167,33 +164,22 @@ initial windows, in combination with packet pacing.
 
 IW10 has been reported to perform fairly well even in high volume servers.
 
-# Packet Pacing
+## TCP SYN flood handling
+
+TCP SYN Flood mitigations {{RFC4987}} are necessary and there will be
+thresholds to tweak.
+
+# TCP transfers
+
+## Packet Pacing
 
 TBD
 
-
-# Explicit Congestion Control
+## Explicit Congestion Control
 
 Apple [deploying in iOS and OSX](https://developer.apple.com/videos/wwdc/2015/?id=719).
 
-
-# Tail Loss Probes
-
-[draft](http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01)
-
-# Slow Start after Idle
-
-Slow-start is one of the algorithms that TCP uses to control congestion inside
-the network. It is also known as the exponential growth phase. Each TCP
-connection will start off in slow-start but will also go back to slow-start
-after a certain amount of idle time.
-
-In Linux systems you can prevent the TCP stack from going back to slow-start
-after idle by settting
-
-    net.ipv4.tcp_slow_start_after_idle = 0
-
-# Nagle's Algorithm
+## Nagle's Algorithm
 
 Nagle's Algorithm {{RFC0896}} is the mechanism that makes the TCP stack hold
 (small) outgoing packets for a short period of time so that it can
@@ -212,27 +198,27 @@ In POSIX systems you switch it off like this:
     int one = 1;
     setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-# Half-close
-
-Client or server is free to half-close after a request or response has been
-completed; or when there is no pending stream in HTTP/2.
-
-Half-closing is sometimes the only way for a server to make sure it closes
-down connections cleanly so that it doesn't accept more requests while still
-allowing clients to receive the ongoing responses.
-
-# Abort
-
-No client abort for HTTP/1.1 after the request body has been sent. Delayed
-full close is expected following an error response to avoid RST on the client.
-
-# Keep-alive
+## Keep-alive
 
 TCP keep-alive is likely disabled - at least on mobile clients for energy
 saving purposes. App-level keep-alive is then required for long-lived requests
 to detect failed peers or connections reset by stateful firewalls etc.
 
-# TCP-Bound Authentications
+# Re-using connections
+
+## Slow Start after Idle
+
+Slow-start is one of the algorithms that TCP uses to control congestion inside
+the network. It is also known as the exponential growth phase. Each TCP
+connection will start off in slow-start but will also go back to slow-start
+after a certain amount of idle time.
+
+In Linux systems you can prevent the TCP stack from going back to slow-start
+after idle by settting
+
+    net.ipv4.tcp_slow_start_after_idle = 0
+
+## TCP-Bound Authentications
 
 There are several HTTP authentication mechanisms in use today that are used or
 can be used to authenticate a connection rather than a single HTTP
@@ -243,12 +229,32 @@ connection can remain authenticated througout the rest of its life time. This
 discrepancy with how other HTTP authentications work makes it important to
 handle these connections with care.
 
-# Close Idle Connections
+# Closing connections
+
+## Half-close
+
+Client or server is free to half-close after a request or response has been
+completed; or when there is no pending stream in HTTP/2.
+
+Half-closing is sometimes the only way for a server to make sure it closes
+down connections cleanly so that it doesn't accept more requests while still
+allowing clients to receive the ongoing responses.
+
+## Abort
+
+No client abort for HTTP/1.1 after the request body has been sent. Delayed
+full close is expected following an error response to avoid RST on the client.
+
+## Close Idle Connections
 
 Keeping open connections around for subsequent connection re-use is key for
 many HTTP clients' performance. The value of an existing connection quickly
 degrades and already after a few minutes the chance that a connection will
 successfully get re-used by a web browser is slim.
+
+## Tail Loss Probes
+
+[draft](http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01)
 
 # IANA Considerations
 
