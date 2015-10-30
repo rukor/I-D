@@ -5,7 +5,7 @@
 <head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
   <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
 
-  <title>TCP Performance Tuning for HTTP</title>
+  <title>TCP Tuning for HTTP</title>
 
   <style type="text/css" title="Xml2Rfc (sans serif)">
   /*<![CDATA[*/
@@ -376,23 +376,38 @@
   <link href="#rfc.toc" rel="Contents"/>
 <link href="#rfc.section.1" rel="Chapter" title="1 Introduction"/>
 <link href="#rfc.section.1.1" rel="Chapter" title="1.1 Notational Conventions"/>
-<link href="#rfc.section.2" rel="Chapter" title="2 TCP Fast Open"/>
-<link href="#rfc.section.3" rel="Chapter" title="3 Initial Congestion Window"/>
-<link href="#rfc.section.4" rel="Chapter" title="4 Packet Pacing"/>
-<link href="#rfc.section.5" rel="Chapter" title="5 Explicit Congestion Control"/>
-<link href="#rfc.section.6" rel="Chapter" title="6 Tail Loss Probes"/>
-<link href="#rfc.section.7" rel="Chapter" title="7 Slow Start after Idle"/>
-<link href="#rfc.section.8" rel="Chapter" title="8 Nagle&#x2019;s Algorithm"/>
-<link href="#rfc.section.9" rel="Chapter" title="9 Half-close"/>
-<link href="#rfc.section.10" rel="Chapter" title="10 Abort"/>
-<link href="#rfc.section.11" rel="Chapter" title="11 Keep-alive"/>
-<link href="#rfc.section.12" rel="Chapter" title="12 TCP-Bound Authentications"/>
-<link href="#rfc.section.13" rel="Chapter" title="13 Closing Idle Connections"/>
-<link href="#rfc.section.14" rel="Chapter" title="14 IANA Considerations"/>
-<link href="#rfc.section.15" rel="Chapter" title="15 Security Considerations"/>
-<link href="#rfc.references" rel="Chapter" title="16 References"/>
-<link href="#rfc.references.1" rel="Chapter" title="16.1 Normative References"/>
-<link href="#rfc.references.2" rel="Chapter" title="16.2 Informative References"/>
+<link href="#rfc.section.2" rel="Chapter" title="2 Queues and memory sizes"/>
+<link href="#rfc.section.2.1" rel="Chapter" title="2.1 Number of open files"/>
+<link href="#rfc.section.2.2" rel="Chapter" title="2.2 Number of concurrent network messages"/>
+<link href="#rfc.section.2.3" rel="Chapter" title="2.3 Number of incoming TCP SYNs allowed to backlog"/>
+<link href="#rfc.section.2.4" rel="Chapter" title="2.4 Use the whole port range for local ports"/>
+<link href="#rfc.section.2.5" rel="Chapter" title="2.5 Lower the TCP FIN timeout"/>
+<link href="#rfc.section.2.6" rel="Chapter" title="2.6 Re-use sockets in TIME_WAIT state"/>
+<link href="#rfc.section.2.7" rel="Chapter" title="2.7 Give the the TCP stack enough memory"/>
+<link href="#rfc.section.2.8" rel="Chapter" title="2.8 Set maximum allowed TCP window sizes"/>
+<link href="#rfc.section.2.9" rel="Chapter" title="2.9 Timers and time-outs"/>
+<link href="#rfc.section.3" rel="Chapter" title="3 TCP handshake"/>
+<link href="#rfc.section.3.1" rel="Chapter" title="3.1 TCP Fast Open"/>
+<link href="#rfc.section.3.2" rel="Chapter" title="3.2 Initial Congestion Window"/>
+<link href="#rfc.section.3.3" rel="Chapter" title="3.3 TCP SYN flood handling"/>
+<link href="#rfc.section.4" rel="Chapter" title="4 TCP transfers"/>
+<link href="#rfc.section.4.1" rel="Chapter" title="4.1 Packet Pacing"/>
+<link href="#rfc.section.4.2" rel="Chapter" title="4.2 Explicit Congestion Control"/>
+<link href="#rfc.section.4.3" rel="Chapter" title="4.3 Nagle&#x2019;s Algorithm"/>
+<link href="#rfc.section.4.4" rel="Chapter" title="4.4 Keep-alive"/>
+<link href="#rfc.section.5" rel="Chapter" title="5 Re-using connections"/>
+<link href="#rfc.section.5.1" rel="Chapter" title="5.1 Slow Start after Idle"/>
+<link href="#rfc.section.5.2" rel="Chapter" title="5.2 TCP-Bound Authentications"/>
+<link href="#rfc.section.6" rel="Chapter" title="6 Closing connections"/>
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Half-close"/>
+<link href="#rfc.section.6.2" rel="Chapter" title="6.2 Abort"/>
+<link href="#rfc.section.6.3" rel="Chapter" title="6.3 Close Idle Connections"/>
+<link href="#rfc.section.6.4" rel="Chapter" title="6.4 Tail Loss Probes"/>
+<link href="#rfc.section.7" rel="Chapter" title="7 IANA Considerations"/>
+<link href="#rfc.section.8" rel="Chapter" title="8 Security Considerations"/>
+<link href="#rfc.references" rel="Chapter" title="9 References"/>
+<link href="#rfc.references.1" rel="Chapter" title="9.1 Normative References"/>
+<link href="#rfc.references.2" rel="Chapter" title="9.2 Informative References"/>
 <link href="#rfc.appendix.A" rel="Chapter" title="A Acknowledgements"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
@@ -402,7 +417,7 @@
 
   <meta name="dct.creator" content="Stenberg, D." />
   <meta name="dct.identifier" content="urn:ietf:id:draft-stenberg-httpbis-tcp-00" />
-  <meta name="dct.issued" scheme="ISO8601" content="2015-10-29" />
+  <meta name="dct.issued" scheme="ISO8601" content="2015-10-31" />
   <meta name="dct.abstract" content="This document records current best practice for using all versions of HTTP over TCP." />
   <meta name="description" content="This document records current best practice for using all versions of HTTP over TCP." />
 
@@ -423,10 +438,10 @@
 </tr>
 <tr>
   <td class="left">Intended status: Best Current Practice</td>
-  <td class="right">October 29, 2015</td>
+  <td class="right">October 31, 2015</td>
 </tr>
 <tr>
-  <td class="left">Expires: May 1, 2016</td>
+  <td class="left">Expires: May 3, 2016</td>
   <td class="right"></td>
 </tr>
 
@@ -434,7 +449,7 @@
     </tbody>
   </table>
 
-  <p class="title">TCP Performance Tuning for HTTP<br />
+  <p class="title">TCP Tuning for HTTP<br />
   <span class="filename">draft-stenberg-httpbis-tcp-00</span></p>
   
   <h1 id="rfc.abstract">
@@ -447,7 +462,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on May 1, 2016.</p>
+<p>This Internet-Draft will expire on May 3, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -461,23 +476,38 @@
 
   	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
 <li>1.1.   <a href="#rfc.section.1.1">Notational Conventions</a></li>
-<li>2.   <a href="#rfc.section.2">TCP Fast Open</a></li>
-<li>3.   <a href="#rfc.section.3">Initial Congestion Window</a></li>
-<li>4.   <a href="#rfc.section.4">Packet Pacing</a></li>
-<li>5.   <a href="#rfc.section.5">Explicit Congestion Control</a></li>
-<li>6.   <a href="#rfc.section.6">Tail Loss Probes</a></li>
-<li>7.   <a href="#rfc.section.7">Slow Start after Idle</a></li>
-<li>8.   <a href="#rfc.section.8">Nagle&#8217;s Algorithm</a></li>
-<li>9.   <a href="#rfc.section.9">Half-close</a></li>
-<li>10.   <a href="#rfc.section.10">Abort</a></li>
-<li>11.   <a href="#rfc.section.11">Keep-alive</a></li>
-<li>12.   <a href="#rfc.section.12">TCP-Bound Authentications</a></li>
-<li>13.   <a href="#rfc.section.13">Closing Idle Connections</a></li>
-<li>14.   <a href="#rfc.section.14">IANA Considerations</a></li>
-<li>15.   <a href="#rfc.section.15">Security Considerations</a></li>
-<li>16.   <a href="#rfc.references">References</a></li>
-<li>16.1.   <a href="#rfc.references.1">Normative References</a></li>
-<li>16.2.   <a href="#rfc.references.2">Informative References</a></li>
+<li>2.   <a href="#rfc.section.2">Queues and memory sizes</a></li>
+<li>2.1.   <a href="#rfc.section.2.1">Number of open files</a></li>
+<li>2.2.   <a href="#rfc.section.2.2">Number of concurrent network messages</a></li>
+<li>2.3.   <a href="#rfc.section.2.3">Number of incoming TCP SYNs allowed to backlog</a></li>
+<li>2.4.   <a href="#rfc.section.2.4">Use the whole port range for local ports</a></li>
+<li>2.5.   <a href="#rfc.section.2.5">Lower the TCP FIN timeout</a></li>
+<li>2.6.   <a href="#rfc.section.2.6">Re-use sockets in TIME_WAIT state</a></li>
+<li>2.7.   <a href="#rfc.section.2.7">Give the the TCP stack enough memory</a></li>
+<li>2.8.   <a href="#rfc.section.2.8">Set maximum allowed TCP window sizes</a></li>
+<li>2.9.   <a href="#rfc.section.2.9">Timers and time-outs</a></li>
+<li>3.   <a href="#rfc.section.3">TCP handshake</a></li>
+<li>3.1.   <a href="#rfc.section.3.1">TCP Fast Open</a></li>
+<li>3.2.   <a href="#rfc.section.3.2">Initial Congestion Window</a></li>
+<li>3.3.   <a href="#rfc.section.3.3">TCP SYN flood handling</a></li>
+<li>4.   <a href="#rfc.section.4">TCP transfers</a></li>
+<li>4.1.   <a href="#rfc.section.4.1">Packet Pacing</a></li>
+<li>4.2.   <a href="#rfc.section.4.2">Explicit Congestion Control</a></li>
+<li>4.3.   <a href="#rfc.section.4.3">Nagle&#8217;s Algorithm</a></li>
+<li>4.4.   <a href="#rfc.section.4.4">Keep-alive</a></li>
+<li>5.   <a href="#rfc.section.5">Re-using connections</a></li>
+<li>5.1.   <a href="#rfc.section.5.1">Slow Start after Idle</a></li>
+<li>5.2.   <a href="#rfc.section.5.2">TCP-Bound Authentications</a></li>
+<li>6.   <a href="#rfc.section.6">Closing connections</a></li>
+<li>6.1.   <a href="#rfc.section.6.1">Half-close</a></li>
+<li>6.2.   <a href="#rfc.section.6.2">Abort</a></li>
+<li>6.3.   <a href="#rfc.section.6.3">Close Idle Connections</a></li>
+<li>6.4.   <a href="#rfc.section.6.4">Tail Loss Probes</a></li>
+<li>7.   <a href="#rfc.section.7">IANA Considerations</a></li>
+<li>8.   <a href="#rfc.section.8">Security Considerations</a></li>
+<li>9.   <a href="#rfc.references">References</a></li>
+<li>9.1.   <a href="#rfc.references.1">Normative References</a></li>
+<li>9.2.   <a href="#rfc.references.2">Informative References</a></li>
 <li>Appendix A.   <a href="#rfc.appendix.A">Acknowledgements</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
@@ -487,53 +517,110 @@
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
 <p id="rfc.section.1.p.1">HTTP version 1.1 <a href="#RFC7230">[RFC7230]</a> as well as HTTP version 2 <a href="#RFC7540">[RFC7540]</a> are defined to use TCP <a href="#RFC0793">[RFC0793]</a>, and their performance can depend greatly upon how TCP is configured. This document records best current practice for using HTTP over TCP, with a focus on improving end-user perceived performance.</p>
 <p id="rfc.section.1.p.2">These practices are generally applicable to HTTP/1 as well as HTTP/2, although some may note particular impact or nuance regarding a particular protocol version.</p>
+<p id="rfc.section.1.p.3">There are countless scenarios, roles and setups where HTTP is being using so there can be no single specific &#8220;Right Answer&#8221; to most TCP questions. This document intends only to cover the most important areas of concern and suggest possible actions.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
-<h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#tcp-fast-open" id="tcp-fast-open">TCP Fast Open</a></h1>
-<p id="rfc.section.2.p.1">TCP Fast Open (a.k.a. TFO, <a href="#RFC7413">[RFC7413]</a>) allows data to be sent on the TCP handshake, thereby allowing a request to be sent without any delay if a connection is not open.</p>
-<p id="rfc.section.2.p.2">TFO requires both client and server support, and additionally requires application knowledge, because the data sent on the SYN needs to be idempotent. Therefore, TFO can only be used on idempotent, safe HTTP methods (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).</p>
-<p id="rfc.section.2.p.3">Support for TFO is growing in client platforms, especially mobile, due to the significant performance advantage it gives.</p>
-<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#initial-congestion-window" id="initial-congestion-window">Initial Congestion Window</a></h1>
-<p><a href="#RFC6928">[RFC6928]</a> specifies an initial congestion window of 10, and is now fairly widely deployed server-side. There has been experimentation with larger initial windows, in combination with packet pacing.</p>
-<h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#packet-pacing" id="packet-pacing">Packet Pacing</a></h1>
-<p id="rfc.section.4.p.1">TBD</p>
-<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#explicit-congestion-control" id="explicit-congestion-control">Explicit Congestion Control</a></h1>
-<p id="rfc.section.5.p.1">Apple <a href="https://developer.apple.com/videos/wwdc/2015/?id=719">deploying in iOS and OSX</a>.</p>
-<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#tail-loss-probes" id="tail-loss-probes">Tail Loss Probes</a></h1>
-<p>
-  <a href="http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01">draft</a>
-</p>
-<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#slow-start-after-idle" id="slow-start-after-idle">Slow Start after Idle</a></h1>
-<p id="rfc.section.7.p.1">Slow-start is one of the algorithms that TCP uses to control congestion inside the network. It is also known as the exponential growth phase. Each TCP connection will start off in slow-start but will also go back to slow-start after a certain amount of idle time.</p>
-<p id="rfc.section.7.p.2">In Linux systems you can prevent the TCP stack from going back to slow-start after idle by settting</p>
+<h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#queues-and-memory-sizes" id="queues-and-memory-sizes">Queues and memory sizes</a></h1>
+<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need to tweak some sizes and timeout periods to perform optimally. Changing limits and altering thresholds will change behaviors, be aware. This is a list of values to consider and some general advice on how they can be modified on Linux systems.</p>
+<h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#number-of-open-files" id="number-of-open-files">Number of open files</a></h1>
+<p id="rfc.section.2.1.p.1">A modern HTTP server will serve a large number of TCP connections and in most systems each open socket equals on open file. Make sure that limit isn&#8217;t a bottle neck. In Linux, the limit can be raised like this:</p>
 <pre>
-net.ipv4.tcp_slow_start_after_idle = 0
+fs.file-max = 2097152
 </pre>
-<h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#nagles-algorithm" id="nagles-algorithm">Nagle&#8217;s Algorithm</a></h1>
-<p id="rfc.section.8.p.1">Nagle&#8217;s Algorithm <a href="#RFC0896">[RFC0896]</a> is the mechanism that makes the TCP stack hold (small) outgoing packets for a short period of time so that it can potentionally merge that packet with the next outgoing one. It is optmized for throughput at the expence of latency.</p>
-<p id="rfc.section.8.p.2">HTTP/2 in particular requires that the client can send a packet back fast even during transfers that are perceived as single direction transfers. Even small delays in those sends can cause a significant performance loss.</p>
-<p id="rfc.section.8.p.3">HTTP/1.1 is also affected, especially when sending off a full request in a single write() system call.</p>
-<p id="rfc.section.8.p.4">In POSIX systems you switch it off like this:</p>
+<h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#number-of-concurrent-network-messages" id="number-of-concurrent-network-messages">Number of concurrent network messages</a></h1>
+<p id="rfc.section.2.2.p.1">Raise the number of packets allowed to get queued when a particular interface receives packets faster than the kernel can process them. In Linux, this limit can be raised like this:</p>
+<pre>
+net.core.netdev_max_backlog = 16384
+</pre>
+<h1 id="rfc.section.2.3"><a href="#rfc.section.2.3">2.3.</a> <a href="#number-of-incoming-tcp-syns-allowed-to-backlog" id="number-of-incoming-tcp-syns-allowed-to-backlog">Number of incoming TCP SYNs allowed to backlog</a></h1>
+<p id="rfc.section.2.3.p.1">The number of new connection requests that are allowed to queue up in the kernel. In Linux, this limit can be raised like this:</p>
+<pre>
+net.core.somaxconn = 3000
+</pre>
+<h1 id="rfc.section.2.4"><a href="#rfc.section.2.4">2.4.</a> <a href="#use-the-whole-port-range-for-local-ports" id="use-the-whole-port-range-for-local-ports">Use the whole port range for local ports</a></h1>
+<p id="rfc.section.2.4.p.1">To make sure the TCP stack can take full advantage of the entire set of possible sockets, give it a larger range of local port numbers to use.</p>
+<pre>
+net.ipv4.ip_local_port_range = 1024 65535
+</pre>
+<h1 id="rfc.section.2.5"><a href="#rfc.section.2.5">2.5.</a> <a href="#lower-the-tcp-fin-timeout" id="lower-the-tcp-fin-timeout">Lower the TCP FIN timeout</a></h1>
+<p id="rfc.section.2.5.p.1">Lower the timeouts during which connections are in FIN-WAIT-2 state so that they can be re-used faster and thus increase number of simultaneous connections possible.</p>
+<pre>
+net.ipv4.tcp_fin_timeout = 15
+</pre>
+<h1 id="rfc.section.2.6"><a href="#rfc.section.2.6">2.6.</a> <a href="#re-use-sockets-in-timewait-state" id="re-use-sockets-in-timewait-state">Re-use sockets in TIME_WAIT state</a></h1>
+<p id="rfc.section.2.6.p.1">Especially when running backend servers that are having edge servers fronting them to the Internet, allow reuse of sockets in TIME_WAIT state for new connections when it is safe from the network stack&#8217;s perspective.</p>
+<pre>
+net.ipv4.tcp_tw_reuse = 1
+</pre>
+<h1 id="rfc.section.2.7"><a href="#rfc.section.2.7">2.7.</a> <a href="#give-the-the-tcp-stack-enough-memory" id="give-the-the-tcp-stack-enough-memory">Give the the TCP stack enough memory</a></h1>
+<p id="rfc.section.2.7.p.1">Systems meant to handle and serve a huge number of TCP connections at high speeds need a significant amount of memory for TCP stack buffers. On some systems you can tell the TCP stack what default buffer sizes to use and how much they are allowed to dynamically grow and shrink. On a Linux system, you can control it like:</p>
+<pre>
+net.ipv4.tcp_wmem = 4096 65536 4194304
+net.ipv4.tcp_rmem = 4096 87380 4194304
+</pre>
+<h1 id="rfc.section.2.8"><a href="#rfc.section.2.8">2.8.</a> <a href="#set-maximum-allowed-tcp-window-sizes" id="set-maximum-allowed-tcp-window-sizes">Set maximum allowed TCP window sizes</a></h1>
+<p id="rfc.section.2.8.p.1">You may have to increase the largest allowed window size.</p>
+<pre>
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+</pre>
+<h1 id="rfc.section.2.9"><a href="#rfc.section.2.9">2.9.</a> <a href="#timers-and-time-outs" id="timers-and-time-outs">Timers and time-outs</a></h1>
+<p id="rfc.section.2.9.p.1">Fail fast. Do not allow very long time-outs. Wasting several minutes for various network related attempts won&#8217;t make any users happy.</p>
+<p id="rfc.section.2.9.p.2">Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations instead, or redirects, 202s or similar.</p>
+<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#tcp-handshake" id="tcp-handshake">TCP handshake</a></h1>
+<h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#tcp-fast-open" id="tcp-fast-open">TCP Fast Open</a></h1>
+<p id="rfc.section.3.1.p.1">TCP Fast Open (a.k.a. TFO, <a href="#RFC7413">[RFC7413]</a>) allows data to be sent on the TCP handshake, thereby allowing a request to be sent without any delay if a connection is not open.</p>
+<p id="rfc.section.3.1.p.2">TFO requires both client and server support, and additionally requires application knowledge, because the data sent on the SYN needs to be idempotent. Therefore, TFO can only be used on idempotent, safe HTTP methods (e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).</p>
+<p id="rfc.section.3.1.p.3">Support for TFO is growing in client platforms, especially mobile, due to the significant performance advantage it gives.</p>
+<h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#initial-congestion-window" id="initial-congestion-window">Initial Congestion Window</a></h1>
+<p><a href="#RFC6928">[RFC6928]</a> specifies an initial congestion window of 10, and is now fairly widely deployed server-side. There has been experimentation with larger initial windows, in combination with packet pacing.</p>
+<p id="rfc.section.3.2.p.2">IW10 has been reported to perform fairly well even in high volume servers.</p>
+<h1 id="rfc.section.3.3"><a href="#rfc.section.3.3">3.3.</a> <a href="#tcp-syn-flood-handling" id="tcp-syn-flood-handling">TCP SYN flood handling</a></h1>
+<p id="rfc.section.3.3.p.1">TCP SYN Flood mitigations <a href="#RFC4987">[RFC4987]</a> are necessary and there will be thresholds to tweak.</p>
+<h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#tcp-transfers" id="tcp-transfers">TCP transfers</a></h1>
+<h1 id="rfc.section.4.1"><a href="#rfc.section.4.1">4.1.</a> <a href="#packet-pacing" id="packet-pacing">Packet Pacing</a></h1>
+<p id="rfc.section.4.1.p.1">TBD</p>
+<h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> <a href="#explicit-congestion-control" id="explicit-congestion-control">Explicit Congestion Control</a></h1>
+<p id="rfc.section.4.2.p.1">Apple <a href="https://developer.apple.com/videos/wwdc/2015/?id=719">deploying in iOS and OSX</a>.</p>
+<h1 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a> <a href="#nagles-algorithm" id="nagles-algorithm">Nagle&#8217;s Algorithm</a></h1>
+<p id="rfc.section.4.3.p.1">Nagle&#8217;s Algorithm <a href="#RFC0896">[RFC0896]</a> is the mechanism that makes the TCP stack hold (small) outgoing packets for a short period of time so that it can potentionally merge that packet with the next outgoing one. It is optmized for throughput at the expence of latency.</p>
+<p id="rfc.section.4.3.p.2">HTTP/2 in particular requires that the client can send a packet back fast even during transfers that are perceived as single direction transfers. Even small delays in those sends can cause a significant performance loss.</p>
+<p id="rfc.section.4.3.p.3">HTTP/1.1 is also affected, especially when sending off a full request in a single write() system call.</p>
+<p id="rfc.section.4.3.p.4">In POSIX systems you switch it off like this:</p>
 <pre>
 int one = 1;
 setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
 </pre>
-<h1 id="rfc.section.9"><a href="#rfc.section.9">9.</a> <a href="#half-close" id="half-close">Half-close</a></h1>
-<p id="rfc.section.9.p.1">Client or server is free to half-close after a request or response has been completed; or when there is no pending stream in HTTP/2.</p>
-<p id="rfc.section.9.p.2">Half-closing is sometimes the only way for a server to make sure it closes down connections cleanly so that it doesn&#8217;t accept more requests while still allowing clients to receive the ongoing responses.</p>
-<h1 id="rfc.section.10"><a href="#rfc.section.10">10.</a> <a href="#abort" id="abort">Abort</a></h1>
-<p id="rfc.section.10.p.1">No client abort for HTTP/1.1 after the request body has been sent. Delayed full close is expected following an error response to avoid RST on the client.</p>
-<h1 id="rfc.section.11"><a href="#rfc.section.11">11.</a> <a href="#keep-alive" id="keep-alive">Keep-alive</a></h1>
-<p id="rfc.section.11.p.1">TCP keep-alive is likely disabled - at least on mobile clients for energy saving purposes. App-level keep-alive is then required for long-lived requests to detect failed peers or connections reset by stateful firewalls etc.</p>
-<h1 id="rfc.section.12"><a href="#rfc.section.12">12.</a> <a href="#tcp-bound-authentications" id="tcp-bound-authentications">TCP-Bound Authentications</a></h1>
-<p id="rfc.section.12.p.1">TBD</p>
-<h1 id="rfc.section.13"><a href="#rfc.section.13">13.</a> <a href="#closing-idle-connections" id="closing-idle-connections">Closing Idle Connections</a></h1>
-<p id="rfc.section.13.p.1">TBD</p>
-<h1 id="rfc.section.14"><a href="#rfc.section.14">14.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a></h1>
-<p id="rfc.section.14.p.1">This document does not require action from IANA.</p>
-<h1 id="rfc.section.15"><a href="#rfc.section.15">15.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
-<h1 id="rfc.references"><a href="#rfc.references">16.</a> References</h1>
-<h1 id="rfc.references.1"><a href="#rfc.references.1">16.1.</a> Normative References</h1>
+<h1 id="rfc.section.4.4"><a href="#rfc.section.4.4">4.4.</a> <a href="#keep-alive" id="keep-alive">Keep-alive</a></h1>
+<p id="rfc.section.4.4.p.1">TCP keep-alive is likely disabled - at least on mobile clients for energy saving purposes. App-level keep-alive is then required for long-lived requests to detect failed peers or connections reset by stateful firewalls etc.</p>
+<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#re-using-connections" id="re-using-connections">Re-using connections</a></h1>
+<h1 id="rfc.section.5.1"><a href="#rfc.section.5.1">5.1.</a> <a href="#slow-start-after-idle" id="slow-start-after-idle">Slow Start after Idle</a></h1>
+<p id="rfc.section.5.1.p.1">Slow-start is one of the algorithms that TCP uses to control congestion inside the network. It is also known as the exponential growth phase. Each TCP connection will start off in slow-start but will also go back to slow-start after a certain amount of idle time.</p>
+<p id="rfc.section.5.1.p.2">In Linux systems you can prevent the TCP stack from going back to slow-start after idle by settting</p>
+<pre>
+net.ipv4.tcp_slow_start_after_idle = 0
+</pre>
+<h1 id="rfc.section.5.2"><a href="#rfc.section.5.2">5.2.</a> <a href="#tcp-bound-authentications" id="tcp-bound-authentications">TCP-Bound Authentications</a></h1>
+<p id="rfc.section.5.2.p.1">There are several HTTP authentication mechanisms in use today that are used or can be used to authenticate a connection rather than a single HTTP request. Two popular ones are NTLM and Negotiate.</p>
+<p id="rfc.section.5.2.p.2">If such an authentication has been negotiated on a TCP connection, that connection can remain authenticated througout the rest of its life time. This discrepancy with how other HTTP authentications work makes it important to handle these connections with care.</p>
+<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#closing-connections" id="closing-connections">Closing connections</a></h1>
+<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#half-close" id="half-close">Half-close</a></h1>
+<p id="rfc.section.6.1.p.1">Client or server is free to half-close after a request or response has been completed; or when there is no pending stream in HTTP/2.</p>
+<p id="rfc.section.6.1.p.2">Half-closing is sometimes the only way for a server to make sure it closes down connections cleanly so that it doesn&#8217;t accept more requests while still allowing clients to receive the ongoing responses.</p>
+<h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#abort" id="abort">Abort</a></h1>
+<p id="rfc.section.6.2.p.1">No client abort for HTTP/1.1 after the request body has been sent. Delayed full close is expected following an error response to avoid RST on the client.</p>
+<h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#close-idle-connections" id="close-idle-connections">Close Idle Connections</a></h1>
+<p id="rfc.section.6.3.p.1">Keeping open connections around for subsequent connection re-use is key for many HTTP clients&#8217; performance. The value of an existing connection quickly degrades and already after a few minutes the chance that a connection will successfully get re-used by a web browser is slim.</p>
+<h1 id="rfc.section.6.4"><a href="#rfc.section.6.4">6.4.</a> <a href="#tail-loss-probes" id="tail-loss-probes">Tail Loss Probes</a></h1>
+<p>
+  <a href="http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01">draft</a>
+</p>
+<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a></h1>
+<p id="rfc.section.7.p.1">This document does not require action from IANA.</p>
+<h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a></h1>
+<p id="rfc.section.8.p.1">TBD</p>
+<h1 id="rfc.references"><a href="#rfc.references">9.</a> References</h1>
+<h1 id="rfc.references.1"><a href="#rfc.references.1">9.1.</a> Normative References</h1>
 <table>
   <tbody>
     <tr>
@@ -562,7 +649,7 @@ setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
     </tr>
   </tbody>
 </table>
-<h1 id="rfc.references.2"><a href="#rfc.references.2">16.2.</a> Informative References</h1>
+<h1 id="rfc.references.2"><a href="#rfc.references.2">9.2.</a> Informative References</h1>
 <table>
   <tbody>
     <tr>
@@ -570,6 +657,12 @@ setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
         <b id="RFC0896">[RFC0896]</b>
       </td>
       <td class="top"><a>Nagle, J.</a>, "<a href="http://tools.ietf.org/html/rfc896">Congestion Control in IP/TCP Internetworks</a>", RFC 896, DOI 10.17487/RFC0896, January 1984.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC4987">[RFC4987]</b>
+      </td>
+      <td class="top"><a>Eddy, W.</a>, "<a href="http://tools.ietf.org/html/rfc4987">TCP SYN Flooding Attacks and Common Mitigations</a>", RFC 4987, DOI 10.17487/RFC4987, August 2007.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -586,7 +679,7 @@ setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &amp;one, sizeof(one));
   </tbody>
 </table>
 <h1 id="rfc.appendix.A"><a href="#rfc.appendix.A">Appendix A.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a></h1>
-<p id="rfc.section.A.p.1">This specification builds upon previous work and help from Mark Nottingham,</p>
+<p id="rfc.section.A.p.1">This specification builds upon previous work and help from Mark Nottingham, Craig Taylor</p>
 <h1 id="rfc.authors">
   <a href="#rfc.authors">Author's Address</a>
 </h1>

@@ -4,11 +4,11 @@
 
 httpbis                                                      D. Stenberg
 Internet-Draft                                                   Mozilla
-Intended status: Best Current Practice                  October 29, 2015
-Expires: May 1, 2016
+Intended status: Best Current Practice                  October 31, 2015
+Expires: May 3, 2016
 
 
-                    TCP Performance Tuning for HTTP
+                          TCP Tuning for HTTP
                      draft-stenberg-httpbis-tcp-00
 
 Abstract
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 1, 2016.
+   This Internet-Draft will expire on May 3, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Stenberg                   Expires May 1, 2016                  [Page 1]
+Stenberg                   Expires May 3, 2016                  [Page 1]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -61,27 +61,42 @@ Internet-Draft                TCP for HTTP                  October 2015
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-     1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   2
-   2.  TCP Fast Open . . . . . . . . . . . . . . . . . . . . . . . .   2
-   3.  Initial Congestion Window . . . . . . . . . . . . . . . . . .   3
-   4.  Packet Pacing . . . . . . . . . . . . . . . . . . . . . . . .   3
-   5.  Explicit Congestion Control . . . . . . . . . . . . . . . . .   3
-   6.  Tail Loss Probes  . . . . . . . . . . . . . . . . . . . . . .   3
-   7.  Slow Start after Idle . . . . . . . . . . . . . . . . . . . .   3
-   8.  Nagle's Algorithm . . . . . . . . . . . . . . . . . . . . . .   3
-   9.  Half-close  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   10. Abort . . . . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   11. Keep-alive  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   12. TCP-Bound Authentications . . . . . . . . . . . . . . . . . .   4
-   13. Closing Idle Connections  . . . . . . . . . . . . . . . . . .   4
-   14. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
-   15. Security Considerations . . . . . . . . . . . . . . . . . . .   5
-   16. References  . . . . . . . . . . . . . . . . . . . . . . . . .   5
-     16.1.  Normative References . . . . . . . . . . . . . . . . . .   5
-     16.2.  Informative References . . . . . . . . . . . . . . . . .   5
-     16.3.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   5
-   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   6
+     1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   3
+   2.  Queues and memory sizes . . . . . . . . . . . . . . . . . . .   3
+     2.1.  Number of open files  . . . . . . . . . . . . . . . . . .   3
+     2.2.  Number of concurrent network messages . . . . . . . . . .   3
+     2.3.  Number of incoming TCP SYNs allowed to backlog  . . . . .   3
+     2.4.  Use the whole port range for local ports  . . . . . . . .   4
+     2.5.  Lower the TCP FIN timeout . . . . . . . . . . . . . . . .   4
+     2.6.  Re-use sockets in TIME_WAIT state . . . . . . . . . . . .   4
+     2.7.  Give the the TCP stack enough memory  . . . . . . . . . .   4
+     2.8.  Set maximum allowed TCP window sizes  . . . . . . . . . .   4
+     2.9.  Timers and time-outs  . . . . . . . . . . . . . . . . . .   4
+   3.  TCP handshake . . . . . . . . . . . . . . . . . . . . . . . .   5
+     3.1.  TCP Fast Open . . . . . . . . . . . . . . . . . . . . . .   5
+     3.2.  Initial Congestion Window . . . . . . . . . . . . . . . .   5
+     3.3.  TCP SYN flood handling  . . . . . . . . . . . . . . . . .   5
+   4.  TCP transfers . . . . . . . . . . . . . . . . . . . . . . . .   5
+     4.1.  Packet Pacing . . . . . . . . . . . . . . . . . . . . . .   5
+     4.2.  Explicit Congestion Control . . . . . . . . . . . . . . .   5
+     4.3.  Nagle's Algorithm . . . . . . . . . . . . . . . . . . . .   6
+     4.4.  Keep-alive  . . . . . . . . . . . . . . . . . . . . . . .   6
+   5.  Re-using connections  . . . . . . . . . . . . . . . . . . . .   6
+     5.1.  Slow Start after Idle . . . . . . . . . . . . . . . . . .   6
+     5.2.  TCP-Bound Authentications . . . . . . . . . . . . . . . .   6
+   6.  Closing connections . . . . . . . . . . . . . . . . . . . . .   7
+     6.1.  Half-close  . . . . . . . . . . . . . . . . . . . . . . .   7
+     6.2.  Abort . . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     6.3.  Close Idle Connections  . . . . . . . . . . . . . . . . .   7
+     6.4.  Tail Loss Probes  . . . . . . . . . . . . . . . . . . . .   7
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .   8
+     9.3.  URIs  . . . . . . . . . . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   9
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
@@ -91,9 +106,22 @@ Table of Contents
    current practice for using HTTP over TCP, with a focus on improving
    end-user perceived performance.
 
+
+
+
+Stenberg                   Expires May 3, 2016                  [Page 2]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
    These practices are generally applicable to HTTP/1 as well as HTTP/2,
    although some may note particular impact or nuance regarding a
    particular protocol version.
+
+   There are countless scenarios, roles and setups where HTTP is being
+   using so there can be no single specific "Right Answer" to most TCP
+   questions.  This document intends only to cover the most important
+   areas of concern and suggest possible actions.
 
 1.1.  Notational Conventions
 
@@ -101,18 +129,113 @@ Table of Contents
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
 
-2.  TCP Fast Open
+2.  Queues and memory sizes
+
+   Your HTTP server or intermediary may need to tweak some sizes and
+   timeout periods to perform optimally.  Changing limits and altering
+   thresholds will change behaviors, be aware.  This is a list of values
+   to consider and some general advice on how they can be modified on
+   Linux systems.
+
+2.1.  Number of open files
+
+   A modern HTTP server will serve a large number of TCP connections and
+   in most systems each open socket equals on open file.  Make sure that
+   limit isn't a bottle neck.  In Linux, the limit can be raised like
+   this:
+
+   fs.file-max = 2097152
+
+2.2.  Number of concurrent network messages
+
+   Raise the number of packets allowed to get queued when a particular
+   interface receives packets faster than the kernel can process them.
+   In Linux, this limit can be raised like this:
+
+   net.core.netdev_max_backlog = 16384
+
+2.3.  Number of incoming TCP SYNs allowed to backlog
+
+   The number of new connection requests that are allowed to queue up in
+   the kernel.  In Linux, this limit can be raised like this:
+
+   net.core.somaxconn = 3000
+
+
+
+
+
+Stenberg                   Expires May 3, 2016                  [Page 3]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
+2.4.  Use the whole port range for local ports
+
+   To make sure the TCP stack can take full advantage of the entire set
+   of possible sockets, give it a larger range of local port numbers to
+   use.
+
+   net.ipv4.ip_local_port_range = 1024 65535
+
+2.5.  Lower the TCP FIN timeout
+
+   Lower the timeouts during which connections are in FIN-WAIT-2 state
+   so that they can be re-used faster and thus increase number of
+   simultaneous connections possible.
+
+   net.ipv4.tcp_fin_timeout = 15
+
+2.6.  Re-use sockets in TIME_WAIT state
+
+   Especially when running backend servers that are having edge servers
+   fronting them to the Internet, allow reuse of sockets in TIME_WAIT
+   state for new connections when it is safe from the network stack's
+   perspective.
+
+   net.ipv4.tcp_tw_reuse = 1
+
+2.7.  Give the the TCP stack enough memory
+
+   Systems meant to handle and serve a huge number of TCP connections at
+   high speeds need a significant amount of memory for TCP stack
+   buffers.  On some systems you can tell the TCP stack what default
+   buffer sizes to use and how much they are allowed to dynamically grow
+   and shrink.  On a Linux system, you can control it like:
+
+   net.ipv4.tcp_wmem = 4096 65536 4194304
+   net.ipv4.tcp_rmem = 4096 87380 4194304
+
+2.8.  Set maximum allowed TCP window sizes
+
+   You may have to increase the largest allowed window size.
+
+   net.core.rmem_max = 16777216
+   net.core.wmem_max = 16777216
+
+2.9.  Timers and time-outs
+
+   Fail fast.  Do not allow very long time-outs.  Wasting several
+   minutes for various network related attempts won't make any users
+   happy.
+
+
+
+Stenberg                   Expires May 3, 2016                  [Page 4]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
+   Avoid long-going TCP flows that are (seemingly) idle.  Use HTTP
+   continuations instead, or redirects, 202s or similar.
+
+3.  TCP handshake
+
+3.1.  TCP Fast Open
 
    TCP Fast Open (a.k.a.  TFO, [RFC7413]) allows data to be sent on the
    TCP handshake, thereby allowing a request to be sent without any
    delay if a connection is not open.
-
-
-
-Stenberg                   Expires May 1, 2016                  [Page 2]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
 
    TFO requires both client and server support, and additionally
    requires application knowledge, because the data sent on the SYN
@@ -123,37 +246,43 @@ Internet-Draft                TCP for HTTP                  October 2015
    Support for TFO is growing in client platforms, especially mobile,
    due to the significant performance advantage it gives.
 
-3.  Initial Congestion Window
+3.2.  Initial Congestion Window
 
    [RFC6928] specifies an initial congestion window of 10, and is now
    fairly widely deployed server-side.  There has been experimentation
    with larger initial windows, in combination with packet pacing.
 
-4.  Packet Pacing
+   IW10 has been reported to perform fairly well even in high volume
+   servers.
+
+3.3.  TCP SYN flood handling
+
+   TCP SYN Flood mitigations [RFC4987] are necessary and there will be
+   thresholds to tweak.
+
+4.  TCP transfers
+
+4.1.  Packet Pacing
 
    TBD
 
-5.  Explicit Congestion Control
+4.2.  Explicit Congestion Control
 
    Apple deploying in iOS and OSX [1].
 
-6.  Tail Loss Probes
 
-   draft [2]
 
-7.  Slow Start after Idle
 
-   Slow-start is one of the algorithms that TCP uses to control
-   congestion inside the network.  It is also known as the exponential
-   growth phase.  Each TCP connection will start off in slow-start but
-   will also go back to slow-start after a certain amount of idle time.
 
-   In Linux systems you can prevent the TCP stack from going back to
-   slow-start after idle by settting
 
-   net.ipv4.tcp_slow_start_after_idle = 0
 
-8.  Nagle's Algorithm
+
+Stenberg                   Expires May 3, 2016                  [Page 5]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
+4.3.  Nagle's Algorithm
 
    Nagle's Algorithm [RFC0896] is the mechanism that makes the TCP stack
    hold (small) outgoing packets for a short period of time so that it
@@ -162,14 +291,6 @@ Internet-Draft                TCP for HTTP                  October 2015
 
    HTTP/2 in particular requires that the client can send a packet back
    fast even during transfers that are perceived as single direction
-
-
-
-Stenberg                   Expires May 1, 2016                  [Page 3]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
-
    transfers.  Even small delays in those sends can cause a significant
    performance loss.
 
@@ -181,7 +302,50 @@ Internet-Draft                TCP for HTTP                  October 2015
    int one = 1;
    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-9.  Half-close
+4.4.  Keep-alive
+
+   TCP keep-alive is likely disabled - at least on mobile clients for
+   energy saving purposes.  App-level keep-alive is then required for
+   long-lived requests to detect failed peers or connections reset by
+   stateful firewalls etc.
+
+5.  Re-using connections
+
+5.1.  Slow Start after Idle
+
+   Slow-start is one of the algorithms that TCP uses to control
+   congestion inside the network.  It is also known as the exponential
+   growth phase.  Each TCP connection will start off in slow-start but
+   will also go back to slow-start after a certain amount of idle time.
+
+   In Linux systems you can prevent the TCP stack from going back to
+   slow-start after idle by settting
+
+   net.ipv4.tcp_slow_start_after_idle = 0
+
+5.2.  TCP-Bound Authentications
+
+   There are several HTTP authentication mechanisms in use today that
+   are used or can be used to authenticate a connection rather than a
+   single HTTP request.  Two popular ones are NTLM and Negotiate.
+
+
+
+
+
+Stenberg                   Expires May 3, 2016                  [Page 6]
+
+Internet-Draft                TCP for HTTP                  October 2015
+
+
+   If such an authentication has been negotiated on a TCP connection,
+   that connection can remain authenticated througout the rest of its
+   life time.  This discrepancy with how other HTTP authentications work
+   makes it important to handle these connections with care.
+
+6.  Closing connections
+
+6.1.  Half-close
 
    Client or server is free to half-close after a request or response
    has been completed; or when there is no pending stream in HTTP/2.
@@ -191,46 +355,46 @@ Internet-Draft                TCP for HTTP                  October 2015
    requests while still allowing clients to receive the ongoing
    responses.
 
-10.  Abort
+6.2.  Abort
 
    No client abort for HTTP/1.1 after the request body has been sent.
    Delayed full close is expected following an error response to avoid
    RST on the client.
 
-11.  Keep-alive
+6.3.  Close Idle Connections
 
-   TCP keep-alive is likely disabled - at least on mobile clients for
-   energy saving purposes.  App-level keep-alive is then required for
-   long-lived requests to detect failed peers or connections reset by
-   stateful firewalls etc.
+   Keeping open connections around for subsequent connection re-use is
+   key for many HTTP clients' performance.  The value of an existing
+   connection quickly degrades and already after a few minutes the
+   chance that a connection will successfully get re-used by a web
+   browser is slim.
 
-12.  TCP-Bound Authentications
+6.4.  Tail Loss Probes
 
-   TBD
+   draft [2]
 
-13.  Closing Idle Connections
-
-   TBD
-
-14.  IANA Considerations
+7.  IANA Considerations
 
    This document does not require action from IANA.
 
+8.  Security Considerations
+
+   TBD
+
+9.  References
 
 
 
 
 
-Stenberg                   Expires May 1, 2016                  [Page 4]
+
+
+Stenberg                   Expires May 3, 2016                  [Page 7]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
 
-15.  Security Considerations
-
-16.  References
-
-16.1.  Normative References
+9.1.  Normative References
 
    [RFC0793]  Postel, J., "Transmission Control Protocol", STD 7, RFC
               793, DOI 10.17487/RFC0793, September 1981,
@@ -251,11 +415,15 @@ Internet-Draft                TCP for HTTP                  October 2015
               10.17487/RFC7540, May 2015,
               <http://www.rfc-editor.org/info/rfc7540>.
 
-16.2.  Informative References
+9.2.  Informative References
 
    [RFC0896]  Nagle, J., "Congestion Control in IP/TCP Internetworks",
               RFC 896, DOI 10.17487/RFC0896, January 1984,
               <http://www.rfc-editor.org/info/rfc896>.
+
+   [RFC4987]  Eddy, W., "TCP SYN Flooding Attacks and Common
+              Mitigations", RFC 4987, DOI 10.17487/RFC4987, August 2007,
+              <http://www.rfc-editor.org/info/rfc4987>.
 
    [RFC6928]  Chu, J., Dukkipati, N., Cheng, Y., and M. Mathis,
               "Increasing TCP's Initial Window", RFC 6928, DOI 10.17487/
@@ -266,7 +434,7 @@ Internet-Draft                TCP for HTTP                  October 2015
               Fast Open", RFC 7413, DOI 10.17487/RFC7413, December 2014,
               <http://www.rfc-editor.org/info/rfc7413>.
 
-16.3.  URIs
+9.3.  URIs
 
    [1] https://developer.apple.com/videos/wwdc/2015/?id=719
 
@@ -277,7 +445,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 
 
-Stenberg                   Expires May 1, 2016                  [Page 5]
+Stenberg                   Expires May 3, 2016                  [Page 8]
 
 Internet-Draft                TCP for HTTP                  October 2015
 
@@ -285,7 +453,7 @@ Internet-Draft                TCP for HTTP                  October 2015
 Appendix A.  Acknowledgements
 
    This specification builds upon previous work and help from Mark
-   Nottingham,
+   Nottingham, Craig Taylor
 
 Author's Address
 
@@ -333,4 +501,4 @@ Author's Address
 
 
 
-Stenberg                   Expires May 1, 2016                  [Page 6]
+Stenberg                   Expires May 3, 2016                  [Page 9]

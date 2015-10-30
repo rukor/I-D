@@ -17,7 +17,7 @@
 <rfc ipr="trust200902" docName="draft-stenberg-httpbis-tcp-00" category="bcp">
 
   <front>
-    <title abbrev="TCP for HTTP">TCP Performance Tuning for HTTP</title>
+    <title abbrev="TCP for HTTP">TCP Tuning for HTTP</title>
 
     <author initials="D." surname="Stenberg" fullname="Daniel Stenberg">
       <organization>Mozilla</organization>
@@ -59,6 +59,11 @@ TCP, with a focus on improving end-user perceived performance.</t>
 some may note particular impact or nuance regarding a particular protocol
 version.</t>
 
+<t>There are countless scenarios, roles and setups where HTTP is being using so
+there can be no single specific “Right Answer” to most TCP questions. This
+document intends only to cover the most important areas of concern and suggest
+possible actions.</t>
+
 <section anchor="notational-conventions" title="Notational Conventions">
 
 <t>The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”,
@@ -67,6 +72,113 @@ interpreted as described in <xref target="RFC2119"/>.</t>
 
 </section>
 </section>
+<section anchor="queues-and-memory-sizes" title="Queues and memory sizes">
+
+<t>Your HTTP server or intermediary may need to tweak some sizes and timeout
+periods to perform optimally. Changing limits and altering thresholds will
+change behaviors, be aware. This is a list of values to consider and some
+general advice on how they can be modified on Linux systems.</t>
+
+<section anchor="number-of-open-files" title="Number of open files">
+
+<t>A modern HTTP server will serve a large number of TCP connections and in most
+systems each open socket equals on open file. Make sure that limit isn’t a
+bottle neck. In Linux, the limit can be raised like this:</t>
+
+<figure><artwork><![CDATA[
+fs.file-max = 2097152
+]]></artwork></figure>
+
+</section>
+<section anchor="number-of-concurrent-network-messages" title="Number of concurrent network messages">
+
+<t>Raise the number of packets allowed to get queued when a particular interface
+receives packets faster than the kernel can process them. In Linux, this limit
+can be raised like this:</t>
+
+<figure><artwork><![CDATA[
+net.core.netdev_max_backlog = 16384
+]]></artwork></figure>
+
+</section>
+<section anchor="number-of-incoming-tcp-syns-allowed-to-backlog" title="Number of incoming TCP SYNs allowed to backlog">
+
+<t>The number of new connection requests that are allowed to queue up in the
+kernel. In Linux, this limit can be raised like this:</t>
+
+<figure><artwork><![CDATA[
+net.core.somaxconn = 3000
+]]></artwork></figure>
+
+</section>
+<section anchor="use-the-whole-port-range-for-local-ports" title="Use the whole port range for local ports">
+
+<t>To make sure the TCP stack can take full advantage of the entire set of
+possible sockets, give it a larger range of local port numbers to use.</t>
+
+<figure><artwork><![CDATA[
+net.ipv4.ip_local_port_range = 1024 65535
+]]></artwork></figure>
+
+</section>
+<section anchor="lower-the-tcp-fin-timeout" title="Lower the TCP FIN timeout">
+
+<t>Lower the timeouts during which connections are in FIN-WAIT-2 state so that
+they can be re-used faster and thus increase number of simultaneous
+connections possible.</t>
+
+<figure><artwork><![CDATA[
+net.ipv4.tcp_fin_timeout = 15
+]]></artwork></figure>
+
+</section>
+<section anchor="re-use-sockets-in-timewait-state" title="Re-use sockets in TIME_WAIT state">
+
+<t>Especially when running backend servers that are having edge servers fronting
+them to the Internet, allow reuse of sockets in TIME_WAIT state for new
+connections when it is safe from the network stack’s perspective.</t>
+
+<figure><artwork><![CDATA[
+net.ipv4.tcp_tw_reuse = 1
+]]></artwork></figure>
+
+</section>
+<section anchor="give-the-the-tcp-stack-enough-memory" title="Give the the TCP stack enough memory">
+
+<t>Systems meant to handle and serve a huge number of TCP connections at high
+speeds need a significant amount of memory for TCP stack buffers. On some
+systems you can tell the TCP stack what default buffer sizes to use and how
+much they are allowed to dynamically grow and shrink. On a Linux system, you
+can control it like:</t>
+
+<figure><artwork><![CDATA[
+net.ipv4.tcp_wmem = 4096 65536 4194304
+net.ipv4.tcp_rmem = 4096 87380 4194304
+]]></artwork></figure>
+
+</section>
+<section anchor="set-maximum-allowed-tcp-window-sizes" title="Set maximum allowed TCP window sizes">
+
+<t>You may have to increase the largest allowed window size.</t>
+
+<figure><artwork><![CDATA[
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+]]></artwork></figure>
+
+</section>
+<section anchor="timers-and-time-outs" title="Timers and time-outs">
+
+<t>Fail fast. Do not allow very long time-outs. Wasting several minutes for
+various network related attempts won’t make any users happy.</t>
+
+<t>Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations
+instead, or redirects, 202s or similar.</t>
+
+</section>
+</section>
+<section anchor="tcp-handshake" title="TCP handshake">
+
 <section anchor="tcp-fast-open" title="TCP Fast Open">
 
 <t>TCP Fast Open (a.k.a. TFO, <xref target="RFC7413"/>) allows data to be sent on the TCP
@@ -88,7 +200,18 @@ significant performance advantage it gives.</t>
 widely deployed server-side. There has been experimentation with larger
 initial windows, in combination with packet pacing.</t>
 
+<t>IW10 has been reported to perform fairly well even in high volume servers.</t>
+
 </section>
+<section anchor="tcp-syn-flood-handling" title="TCP SYN flood handling">
+
+<t>TCP SYN Flood mitigations <xref target="RFC4987"/> are necessary and there will be
+thresholds to tweak.</t>
+
+</section>
+</section>
+<section anchor="tcp-transfers" title="TCP transfers">
+
 <section anchor="packet-pacing" title="Packet Pacing">
 
 <t>TBD</t>
@@ -97,26 +220,6 @@ initial windows, in combination with packet pacing.</t>
 <section anchor="explicit-congestion-control" title="Explicit Congestion Control">
 
 <t>Apple <eref target="https://developer.apple.com/videos/wwdc/2015/?id=719">deploying in iOS and OSX</eref>.</t>
-
-</section>
-<section anchor="tail-loss-probes" title="Tail Loss Probes">
-
-<t><eref target="http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01">draft</eref></t>
-
-</section>
-<section anchor="slow-start-after-idle" title="Slow Start after Idle">
-
-<t>Slow-start is one of the algorithms that TCP uses to control congestion inside
-the network. It is also known as the exponential growth phase. Each TCP
-connection will start off in slow-start but will also go back to slow-start
-after a certain amount of idle time.</t>
-
-<t>In Linux systems you can prevent the TCP stack from going back to slow-start
-after idle by settting</t>
-
-<figure><artwork><![CDATA[
-net.ipv4.tcp_slow_start_after_idle = 0
-]]></artwork></figure>
 
 </section>
 <section anchor="nagles-algorithm" title="Nagle’s Algorithm">
@@ -141,6 +244,46 @@ setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 ]]></artwork></figure>
 
 </section>
+<section anchor="keep-alive" title="Keep-alive">
+
+<t>TCP keep-alive is likely disabled - at least on mobile clients for energy
+saving purposes. App-level keep-alive is then required for long-lived requests
+to detect failed peers or connections reset by stateful firewalls etc.</t>
+
+</section>
+</section>
+<section anchor="re-using-connections" title="Re-using connections">
+
+<section anchor="slow-start-after-idle" title="Slow Start after Idle">
+
+<t>Slow-start is one of the algorithms that TCP uses to control congestion inside
+the network. It is also known as the exponential growth phase. Each TCP
+connection will start off in slow-start but will also go back to slow-start
+after a certain amount of idle time.</t>
+
+<t>In Linux systems you can prevent the TCP stack from going back to slow-start
+after idle by settting</t>
+
+<figure><artwork><![CDATA[
+net.ipv4.tcp_slow_start_after_idle = 0
+]]></artwork></figure>
+
+</section>
+<section anchor="tcp-bound-authentications" title="TCP-Bound Authentications">
+
+<t>There are several HTTP authentication mechanisms in use today that are used or
+can be used to authenticate a connection rather than a single HTTP
+request. Two popular ones are NTLM and Negotiate.</t>
+
+<t>If such an authentication has been negotiated on a TCP connection, that
+connection can remain authenticated througout the rest of its life time. This
+discrepancy with how other HTTP authentications work makes it important to
+handle these connections with care.</t>
+
+</section>
+</section>
+<section anchor="closing-connections" title="Closing connections">
+
 <section anchor="half-close" title="Half-close">
 
 <t>Client or server is free to half-close after a request or response has been
@@ -157,22 +300,19 @@ allowing clients to receive the ongoing responses.</t>
 full close is expected following an error response to avoid RST on the client.</t>
 
 </section>
-<section anchor="keep-alive" title="Keep-alive">
+<section anchor="close-idle-connections" title="Close Idle Connections">
 
-<t>TCP keep-alive is likely disabled - at least on mobile clients for energy
-saving purposes. App-level keep-alive is then required for long-lived requests
-to detect failed peers or connections reset by stateful firewalls etc.</t>
-
-</section>
-<section anchor="tcp-bound-authentications" title="TCP-Bound Authentications">
-
-<t>TBD</t>
+<t>Keeping open connections around for subsequent connection re-use is key for
+many HTTP clients’ performance. The value of an existing connection quickly
+degrades and already after a few minutes the chance that a connection will
+successfully get re-used by a web browser is slim.</t>
 
 </section>
-<section anchor="closing-idle-connections" title="Closing Idle Connections">
+<section anchor="tail-loss-probes" title="Tail Loss Probes">
 
-<t>TBD</t>
+<t><eref target="http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01">draft</eref></t>
 
+</section>
 </section>
 <section anchor="iana-considerations" title="IANA Considerations">
 
@@ -180,6 +320,8 @@ to detect failed peers or connections reset by stateful firewalls etc.</t>
 
 </section>
 <section anchor="security-considerations" title="Security Considerations">
+
+<t>TBD</t>
 
 </section>
 
@@ -304,6 +446,19 @@ to detect failed peers or connections reset by stateful firewalls etc.</t>
 
 
 
+<reference  anchor='RFC4987' target='http://www.rfc-editor.org/info/rfc4987'>
+<front>
+<title>TCP SYN Flooding Attacks and Common Mitigations</title>
+<author initials='W.' surname='Eddy' fullname='W. Eddy'><organization /></author>
+<date year='2007' month='August' />
+<abstract><t>This document describes TCP SYN flooding attacks, which have been well-known to the community for several years.  Various countermeasures against these attacks, and the trade-offs of each, are described.  This document archives explanations of the attack and common defense techniques for the benefit of TCP implementers and administrators of TCP servers or networks, but does not make any standards-level recommendations.  This memo provides information for the Internet community.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='4987'/>
+<seriesInfo name='DOI' value='10.17487/RFC4987'/>
+</reference>
+
+
+
 
     </references>
 
@@ -311,7 +466,7 @@ to detect failed peers or connections reset by stateful firewalls etc.</t>
 <section anchor="acknowledgements" title="Acknowledgements">
 
 <t>This specification builds upon previous work and help from
-Mark Nottingham,</t>
+Mark Nottingham, Craig Taylor</t>
 
 </section>
 
