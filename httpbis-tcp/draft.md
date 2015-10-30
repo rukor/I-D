@@ -31,6 +31,7 @@ informative:
   RFC7413:
   RFC6928:
   RFC0896:
+  RFC4987:
 
 --- abstract
 
@@ -49,12 +50,100 @@ These practices are generally applicable to HTTP/1 as well as HTTP/2, although
 some may note particular impact or nuance regarding a particular protocol
 version.
 
+There are countless scenarios, roles and setups where HTTP is being using so
+there can be no single specific "Right Answer" to most TCP questions. This
+document intends only to cover the most important areas of concern and suggest
+possible actions.
+
 ## Notational Conventions
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
 interpreted as described in {{RFC2119}}.
 
+# Queues and memory sizes
+
+Your HTTP server or intermediary may need to tweak some sizes and timeout
+periods to perform optimally. Changing limits and altering thresholds will
+change behaviors, be aware. This is a list of values to consider and some
+general advice on how they can be modified on Linux systems.
+
+## Number of open files
+
+A modern HTTP server will serve a large number of TCP connections and in most
+systems each open socket equals on open file. Make sure that limit isn't a
+bottle neck. In Linux, the limit can be raised like this:
+
+    fs.file-max = 2097152
+
+## Number of concurrent network messages
+
+Raise the number of packets allowed to get queued when a particular interface
+receives packets faster than the kernel can process them. In Linux, this limit
+can be raised like this:
+
+    net.core.netdev_max_backlog = 16384
+
+## Number of incoming TCP SYNs allowed to backlog
+
+The number of new connection requests that are allowed to queue up in the
+kernel. In Linux, this limit can be raised like this:
+
+    net.core.somaxconn = 3000
+
+## Use the whole port range for local ports
+
+To make sure the TCP stack can take full advantage of the entire set of
+possible sockets, give it a larger range of local port numbers to use.
+
+    net.ipv4.ip_local_port_range = 1024 65535
+
+## Lower the TCP FIN timeout
+
+Lower the timeouts during which connections are in FIN-WAIT-2 state so that
+they can be re-used faster and thus increase number of simultaneous
+connections possible.
+
+    net.ipv4.tcp_fin_timeout = 15
+
+## Re-use sockets in TIME_WAIT state
+
+Especially when running backend servers that are having edge servers fronting
+them to the Internet, allow reuse of sockets in TIME_WAIT state for new
+connections when it is safe from the network stack’s perspective.
+
+    net.ipv4.tcp_tw_reuse = 1
+
+## TCP SYN flood handling
+
+TCP SYN Flood mitigations {{RFC4987}} are necessary and there will be
+thresholds to tweak.
+
+## Give the the TCP stack enough memory
+
+Systems meant to handle and serve a huge number of TCP connections at high
+speeds need a significant amount of memory for TCP stack buffers. On some
+systems you can tell the TCP stack what default buffer sizes to use and how
+much they are allowed to dynamically grow and shrink. On a Linux system, you
+can control it like:
+
+    net.ipv4.tcp_wmem = 4096 65536 4194304
+    net.ipv4.tcp_rmem = 4096 87380 4194304
+
+## Set maximum allowed TCP window sizes
+
+You may have to increase the largest allowed window size.
+
+    net.core.rmem_max = 16777216
+    net.core.wmem_max = 16777216
+
+# Timers and time-outs
+
+Fail fast. Do not allow very long time-outs. Wasting several minutes for
+various network related attempts won't make any users happy.
+
+Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations
+instead, or redirects, 202s or similar.
 
 # TCP Fast Open
 
@@ -75,6 +164,8 @@ significant performance advantage it gives.
 {{RFC6928}} specifies an initial congestion window of 10, and is now fairly
 widely deployed server-side. There has been experimentation with larger
 initial windows, in combination with packet pacing.
+
+IW10 has been reported to perform fairly well even in high volume servers.
 
 # Packet Pacing
 
@@ -121,7 +212,6 @@ In POSIX systems you switch it off like this:
     int one = 1;
     setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-
 # Half-close
 
 Client or server is free to half-close after a request or response has been
@@ -162,4 +252,4 @@ This document does not require action from IANA.
 # Acknowledgements
 
 This specification builds upon previous work and help from
-Mark Nottingham,
+Mark Nottingham, Craig Taylor
