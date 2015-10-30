@@ -1,5 +1,5 @@
 ---
-title: TCP Performance Tuning for HTTP
+title: TCP Tuning for HTTP
 abbrev: TCP for HTTP
 docname: draft-stenberg-httpbis-tcp-00
 date: 2015
@@ -234,11 +234,21 @@ to detect failed peers or connections reset by stateful firewalls etc.
 
 # TCP-Bound Authentications
 
-TBD
+There are several HTTP authentication mechanisms in use today that are used or
+can be used to authenticate a connection rather than a single HTTP
+request. Two popular ones are NTLM and Negotiate.
 
-# Closing Idle Connections
+If such an authentication has been negotiated on a TCP connection, that
+connection can remain authenticated througout the rest of its life time. This
+discrepancy with how other HTTP authentications work makes it important to
+handle these connections with care.
 
-TBD
+# Close Idle Connections
+
+Keeping open connections around for subsequent connection re-use is key for
+many HTTP clients' performance. The value of an existing connection quickly
+degrades and already after a few minutes the chance that a connection will
+successfully get re-used by a web browser is slim.
 
 # IANA Considerations
 
@@ -246,6 +256,7 @@ This document does not require action from IANA.
 
 # Security Considerations
 
+TBD
 
 --- back
 
