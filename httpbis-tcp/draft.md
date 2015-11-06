@@ -63,10 +63,16 @@ interpreted as described in {{RFC2119}}.
 
 # Socket planning
 
-Your HTTP server or intermediary may need to tweak some sizes and timeout
-periods to perform optimally. Changing limits and altering thresholds will
-change behaviors, be aware. This is a list of values to consider and some
-general advice on how they can be modified on Linux systems.
+Your HTTP server or intermediary may need configuration changes to some system
+tunables and timeout periods to perform optimally. Actual values will depend
+on how you are scaling the platform, horizontally or vertically, and other
+connection semantics. Changing system limits and altering thresholds will
+change the behaviour of your web service and it's dependencies, these
+dependencies are usually common to other services running on the same system
+so good planning and testing is advised.
+
+This is a list of values to consider and some general advice on how they can
+be modified on Linux systems.
 
 ## Number of open files
 
