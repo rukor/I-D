@@ -4,8 +4,8 @@
 
 httpbis                                                      D. Stenberg
 Internet-Draft                                                   Mozilla
-Intended status: Best Current Practice                  October 31, 2015
-Expires: May 3, 2016
+Intended status: Best Current Practice                  November 6, 2015
+Expires: May 9, 2016
 
 
                           TCP Tuning for HTTP
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 3, 2016.
+   This Internet-Draft will expire on May 9, 2016.
 
 Copyright Notice
 
@@ -53,48 +53,48 @@ Copyright Notice
 
 
 
-Stenberg                   Expires May 3, 2016                  [Page 1]
+Stenberg                   Expires May 9, 2016                  [Page 1]
 
-Internet-Draft                TCP for HTTP                  October 2015
+Internet-Draft                TCP for HTTP                 November 2015
 
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Notational Conventions  . . . . . . . . . . . . . . . . .   3
-   2.  Queues and memory sizes . . . . . . . . . . . . . . . . . . .   3
+   2.  Socket planning . . . . . . . . . . . . . . . . . . . . . . .   3
      2.1.  Number of open files  . . . . . . . . . . . . . . . . . .   3
      2.2.  Number of concurrent network messages . . . . . . . . . .   3
-     2.3.  Number of incoming TCP SYNs allowed to backlog  . . . . .   3
+     2.3.  Number of incoming TCP SYNs allowed to backlog  . . . . .   4
      2.4.  Use the whole port range for local ports  . . . . . . . .   4
      2.5.  Lower the TCP FIN timeout . . . . . . . . . . . . . . . .   4
      2.6.  Re-use sockets in TIME_WAIT state . . . . . . . . . . . .   4
      2.7.  Give the the TCP stack enough memory  . . . . . . . . . .   4
      2.8.  Set maximum allowed TCP window sizes  . . . . . . . . . .   4
-     2.9.  Timers and time-outs  . . . . . . . . . . . . . . . . . .   4
+     2.9.  Timers and time-outs  . . . . . . . . . . . . . . . . . .   5
    3.  TCP handshake . . . . . . . . . . . . . . . . . . . . . . . .   5
      3.1.  TCP Fast Open . . . . . . . . . . . . . . . . . . . . . .   5
      3.2.  Initial Congestion Window . . . . . . . . . . . . . . . .   5
      3.3.  TCP SYN flood handling  . . . . . . . . . . . . . . . . .   5
    4.  TCP transfers . . . . . . . . . . . . . . . . . . . . . . . .   5
-     4.1.  Packet Pacing . . . . . . . . . . . . . . . . . . . . . .   5
-     4.2.  Explicit Congestion Control . . . . . . . . . . . . . . .   5
+     4.1.  Packet Pacing . . . . . . . . . . . . . . . . . . . . . .   6
+     4.2.  Explicit Congestion Control . . . . . . . . . . . . . . .   6
      4.3.  Nagle's Algorithm . . . . . . . . . . . . . . . . . . . .   6
      4.4.  Keep-alive  . . . . . . . . . . . . . . . . . . . . . . .   6
    5.  Re-using connections  . . . . . . . . . . . . . . . . . . . .   6
      5.1.  Slow Start after Idle . . . . . . . . . . . . . . . . . .   6
-     5.2.  TCP-Bound Authentications . . . . . . . . . . . . . . . .   6
+     5.2.  TCP-Bound Authentications . . . . . . . . . . . . . . . .   7
    6.  Closing connections . . . . . . . . . . . . . . . . . . . . .   7
      6.1.  Half-close  . . . . . . . . . . . . . . . . . . . . . . .   7
      6.2.  Abort . . . . . . . . . . . . . . . . . . . . . . . . . .   7
      6.3.  Close Idle Connections  . . . . . . . . . . . . . . . . .   7
      6.4.  Tail Loss Probes  . . . . . . . . . . . . . . . . . . . .   7
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
      9.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
      9.2.  Informative References  . . . . . . . . . . . . . . . . .   8
-     9.3.  URIs  . . . . . . . . . . . . . . . . . . . . . . . . . .   8
+     9.3.  URIs  . . . . . . . . . . . . . . . . . . . . . . . . . .   9
    Appendix A.  Acknowledgements . . . . . . . . . . . . . . . . . .   9
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Stenberg                   Expires May 3, 2016                  [Page 2]
+Stenberg                   Expires May 9, 2016                  [Page 2]
 
-Internet-Draft                TCP for HTTP                  October 2015
+Internet-Draft                TCP for HTTP                 November 2015
 
 
    These practices are generally applicable to HTTP/1 as well as HTTP/2,
@@ -129,13 +129,19 @@ Internet-Draft                TCP for HTTP                  October 2015
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
 
-2.  Queues and memory sizes
+2.  Socket planning
 
-   Your HTTP server or intermediary may need to tweak some sizes and
-   timeout periods to perform optimally.  Changing limits and altering
-   thresholds will change behaviors, be aware.  This is a list of values
-   to consider and some general advice on how they can be modified on
-   Linux systems.
+   Your HTTP server or intermediary may need configuration changes to
+   some system tunables and timeout periods to perform optimally.
+   Actual values will depend on how you are scaling the platform,
+   horizontally or vertically, and other connection semantics.  Changing
+   system limits and altering thresholds will change the behaviour of
+   your web service and it's dependencies, these dependencies are
+   usually common to other services running on the same system so good
+   planning and testing is advised.
+
+   This is a list of values to consider and some general advice on how
+   they can be modified on Linux systems.
 
 2.1.  Number of open files
 
@@ -144,7 +150,7 @@ Internet-Draft                TCP for HTTP                  October 2015
    limit isn't a bottle neck.  In Linux, the limit can be raised like
    this:
 
-   fs.file-max = 2097152
+   fs.file-max = <number of files>
 
 2.2.  Number of concurrent network messages
 
@@ -152,23 +158,24 @@ Internet-Draft                TCP for HTTP                  October 2015
    interface receives packets faster than the kernel can process them.
    In Linux, this limit can be raised like this:
 
-   net.core.netdev_max_backlog = 16384
+   net.core.netdev_max_backlog = <number of packets>
+
+
+
+
+
+
+Stenberg                   Expires May 9, 2016                  [Page 3]
+
+Internet-Draft                TCP for HTTP                 November 2015
+
 
 2.3.  Number of incoming TCP SYNs allowed to backlog
 
    The number of new connection requests that are allowed to queue up in
    the kernel.  In Linux, this limit can be raised like this:
 
-   net.core.somaxconn = 3000
-
-
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 3]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
+   net.core.somaxconn = <number>
 
 2.4.  Use the whole port range for local ports
 
@@ -184,7 +191,7 @@ Internet-Draft                TCP for HTTP                  October 2015
    so that they can be re-used faster and thus increase number of
    simultaneous connections possible.
 
-   net.ipv4.tcp_fin_timeout = 15
+   net.ipv4.tcp_fin_timeout = <number of seconds>
 
 2.6.  Re-use sockets in TIME_WAIT state
 
@@ -203,28 +210,30 @@ Internet-Draft                TCP for HTTP                  October 2015
    buffer sizes to use and how much they are allowed to dynamically grow
    and shrink.  On a Linux system, you can control it like:
 
-   net.ipv4.tcp_wmem = 4096 65536 4194304
-   net.ipv4.tcp_rmem = 4096 87380 4194304
+   net.ipv4.tcp_wmem = <minimum size <default size> <max size in bytes>
+   net.ipv4.tcp_rmem = <minimum size <default size> <max size in bytes>
 
 2.8.  Set maximum allowed TCP window sizes
 
    You may have to increase the largest allowed window size.
 
-   net.core.rmem_max = 16777216
-   net.core.wmem_max = 16777216
+
+
+
+
+Stenberg                   Expires May 9, 2016                  [Page 4]
+
+Internet-Draft                TCP for HTTP                 November 2015
+
+
+   net.core.rmem_max = <number of bytes>
+   net.core.wmem_max = <number of bytes>
 
 2.9.  Timers and time-outs
 
    Fail fast.  Do not allow very long time-outs.  Wasting several
    minutes for various network related attempts won't make any users
    happy.
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 4]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
 
    Avoid long-going TCP flows that are (seemingly) idle.  Use HTTP
    continuations instead, or redirects, 202s or similar.
@@ -262,6 +271,17 @@ Internet-Draft                TCP for HTTP                  October 2015
 
 4.  TCP transfers
 
+
+
+
+
+
+
+Stenberg                   Expires May 9, 2016                  [Page 5]
+
+Internet-Draft                TCP for HTTP                 November 2015
+
+
 4.1.  Packet Pacing
 
    TBD
@@ -269,18 +289,6 @@ Internet-Draft                TCP for HTTP                  October 2015
 4.2.  Explicit Congestion Control
 
    Apple deploying in iOS and OSX [1].
-
-
-
-
-
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 5]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
 
 4.3.  Nagle's Algorithm
 
@@ -323,20 +331,18 @@ Internet-Draft                TCP for HTTP                  October 2015
 
    net.ipv4.tcp_slow_start_after_idle = 0
 
+
+
+Stenberg                   Expires May 9, 2016                  [Page 6]
+
+Internet-Draft                TCP for HTTP                 November 2015
+
+
 5.2.  TCP-Bound Authentications
 
    There are several HTTP authentication mechanisms in use today that
    are used or can be used to authenticate a connection rather than a
    single HTTP request.  Two popular ones are NTLM and Negotiate.
-
-
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 6]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
 
    If such an authentication has been negotiated on a TCP connection,
    that connection can remain authenticated througout the rest of its
@@ -377,22 +383,22 @@ Internet-Draft                TCP for HTTP                  October 2015
 
    This document does not require action from IANA.
 
+
+
+
+
+
+
+Stenberg                   Expires May 9, 2016                  [Page 7]
+
+Internet-Draft                TCP for HTTP                 November 2015
+
+
 8.  Security Considerations
 
    TBD
 
 9.  References
-
-
-
-
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 7]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
 
 9.1.  Normative References
 
@@ -434,21 +440,21 @@ Internet-Draft                TCP for HTTP                  October 2015
               Fast Open", RFC 7413, DOI 10.17487/RFC7413, December 2014,
               <http://www.rfc-editor.org/info/rfc7413>.
 
+
+
+
+
+
+Stenberg                   Expires May 9, 2016                  [Page 8]
+
+Internet-Draft                TCP for HTTP                 November 2015
+
+
 9.3.  URIs
 
    [1] https://developer.apple.com/videos/wwdc/2015/?id=719
 
    [2] http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01
-
-
-
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 8]
-
-Internet-Draft                TCP for HTTP                  October 2015
-
 
 Appendix A.  Acknowledgements
 
@@ -495,10 +501,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-Stenberg                   Expires May 3, 2016                  [Page 9]
+Stenberg                   Expires May 9, 2016                  [Page 9]

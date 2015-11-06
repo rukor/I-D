@@ -376,7 +376,7 @@
   <link href="#rfc.toc" rel="Contents"/>
 <link href="#rfc.section.1" rel="Chapter" title="1 Introduction"/>
 <link href="#rfc.section.1.1" rel="Chapter" title="1.1 Notational Conventions"/>
-<link href="#rfc.section.2" rel="Chapter" title="2 Queues and memory sizes"/>
+<link href="#rfc.section.2" rel="Chapter" title="2 Socket planning"/>
 <link href="#rfc.section.2.1" rel="Chapter" title="2.1 Number of open files"/>
 <link href="#rfc.section.2.2" rel="Chapter" title="2.2 Number of concurrent network messages"/>
 <link href="#rfc.section.2.3" rel="Chapter" title="2.3 Number of incoming TCP SYNs allowed to backlog"/>
@@ -417,7 +417,7 @@
 
   <meta name="dct.creator" content="Stenberg, D." />
   <meta name="dct.identifier" content="urn:ietf:id:draft-stenberg-httpbis-tcp-00" />
-  <meta name="dct.issued" scheme="ISO8601" content="2015-10-31" />
+  <meta name="dct.issued" scheme="ISO8601" content="2015-11-6" />
   <meta name="dct.abstract" content="This document records current best practice for using all versions of HTTP over TCP." />
   <meta name="description" content="This document records current best practice for using all versions of HTTP over TCP." />
 
@@ -438,10 +438,10 @@
 </tr>
 <tr>
   <td class="left">Intended status: Best Current Practice</td>
-  <td class="right">October 31, 2015</td>
+  <td class="right">November 6, 2015</td>
 </tr>
 <tr>
-  <td class="left">Expires: May 3, 2016</td>
+  <td class="left">Expires: May 9, 2016</td>
   <td class="right"></td>
 </tr>
 
@@ -462,7 +462,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on May 3, 2016.</p>
+<p>This Internet-Draft will expire on May 9, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -476,7 +476,7 @@
 
   	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
 <li>1.1.   <a href="#rfc.section.1.1">Notational Conventions</a></li>
-<li>2.   <a href="#rfc.section.2">Queues and memory sizes</a></li>
+<li>2.   <a href="#rfc.section.2">Socket planning</a></li>
 <li>2.1.   <a href="#rfc.section.2.1">Number of open files</a></li>
 <li>2.2.   <a href="#rfc.section.2.2">Number of concurrent network messages</a></li>
 <li>2.3.   <a href="#rfc.section.2.3">Number of incoming TCP SYNs allowed to backlog</a></li>
@@ -520,22 +520,23 @@
 <p id="rfc.section.1.p.3">There are countless scenarios, roles and setups where HTTP is being using so there can be no single specific &#8220;Right Answer&#8221; to most TCP questions. This document intends only to cover the most important areas of concern and suggest possible actions.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
-<h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#queues-and-memory-sizes" id="queues-and-memory-sizes">Queues and memory sizes</a></h1>
-<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need to tweak some sizes and timeout periods to perform optimally. Changing limits and altering thresholds will change behaviors, be aware. This is a list of values to consider and some general advice on how they can be modified on Linux systems.</p>
+<h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#socket-planning" id="socket-planning">Socket planning</a></h1>
+<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need configuration changes to some system tunables and timeout periods to perform optimally. Actual values will depend on how you are scaling the platform, horizontally or vertically, and other connection semantics. Changing system limits and altering thresholds will change the behaviour of your web service and it&#8217;s dependencies, these dependencies are usually common to other services running on the same system so good planning and testing is advised.</p>
+<p id="rfc.section.2.p.2">This is a list of values to consider and some general advice on how they can be modified on Linux systems.</p>
 <h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#number-of-open-files" id="number-of-open-files">Number of open files</a></h1>
 <p id="rfc.section.2.1.p.1">A modern HTTP server will serve a large number of TCP connections and in most systems each open socket equals on open file. Make sure that limit isn&#8217;t a bottle neck. In Linux, the limit can be raised like this:</p>
 <pre>
-fs.file-max = 2097152
+fs.file-max = &lt;number of files&gt;
 </pre>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#number-of-concurrent-network-messages" id="number-of-concurrent-network-messages">Number of concurrent network messages</a></h1>
 <p id="rfc.section.2.2.p.1">Raise the number of packets allowed to get queued when a particular interface receives packets faster than the kernel can process them. In Linux, this limit can be raised like this:</p>
 <pre>
-net.core.netdev_max_backlog = 16384
+net.core.netdev_max_backlog = &lt;number of packets&gt;
 </pre>
 <h1 id="rfc.section.2.3"><a href="#rfc.section.2.3">2.3.</a> <a href="#number-of-incoming-tcp-syns-allowed-to-backlog" id="number-of-incoming-tcp-syns-allowed-to-backlog">Number of incoming TCP SYNs allowed to backlog</a></h1>
 <p id="rfc.section.2.3.p.1">The number of new connection requests that are allowed to queue up in the kernel. In Linux, this limit can be raised like this:</p>
 <pre>
-net.core.somaxconn = 3000
+net.core.somaxconn = &lt;number&gt;
 </pre>
 <h1 id="rfc.section.2.4"><a href="#rfc.section.2.4">2.4.</a> <a href="#use-the-whole-port-range-for-local-ports" id="use-the-whole-port-range-for-local-ports">Use the whole port range for local ports</a></h1>
 <p id="rfc.section.2.4.p.1">To make sure the TCP stack can take full advantage of the entire set of possible sockets, give it a larger range of local port numbers to use.</p>
@@ -545,7 +546,7 @@ net.ipv4.ip_local_port_range = 1024 65535
 <h1 id="rfc.section.2.5"><a href="#rfc.section.2.5">2.5.</a> <a href="#lower-the-tcp-fin-timeout" id="lower-the-tcp-fin-timeout">Lower the TCP FIN timeout</a></h1>
 <p id="rfc.section.2.5.p.1">Lower the timeouts during which connections are in FIN-WAIT-2 state so that they can be re-used faster and thus increase number of simultaneous connections possible.</p>
 <pre>
-net.ipv4.tcp_fin_timeout = 15
+net.ipv4.tcp_fin_timeout = &lt;number of seconds&gt;
 </pre>
 <h1 id="rfc.section.2.6"><a href="#rfc.section.2.6">2.6.</a> <a href="#re-use-sockets-in-timewait-state" id="re-use-sockets-in-timewait-state">Re-use sockets in TIME_WAIT state</a></h1>
 <p id="rfc.section.2.6.p.1">Especially when running backend servers that are having edge servers fronting them to the Internet, allow reuse of sockets in TIME_WAIT state for new connections when it is safe from the network stack&#8217;s perspective.</p>
@@ -555,14 +556,14 @@ net.ipv4.tcp_tw_reuse = 1
 <h1 id="rfc.section.2.7"><a href="#rfc.section.2.7">2.7.</a> <a href="#give-the-the-tcp-stack-enough-memory" id="give-the-the-tcp-stack-enough-memory">Give the the TCP stack enough memory</a></h1>
 <p id="rfc.section.2.7.p.1">Systems meant to handle and serve a huge number of TCP connections at high speeds need a significant amount of memory for TCP stack buffers. On some systems you can tell the TCP stack what default buffer sizes to use and how much they are allowed to dynamically grow and shrink. On a Linux system, you can control it like:</p>
 <pre>
-net.ipv4.tcp_wmem = 4096 65536 4194304
-net.ipv4.tcp_rmem = 4096 87380 4194304
+net.ipv4.tcp_wmem = &lt;minimum size &lt;default size&gt; &lt;max size in bytes&gt;
+net.ipv4.tcp_rmem = &lt;minimum size &lt;default size&gt; &lt;max size in bytes&gt;
 </pre>
 <h1 id="rfc.section.2.8"><a href="#rfc.section.2.8">2.8.</a> <a href="#set-maximum-allowed-tcp-window-sizes" id="set-maximum-allowed-tcp-window-sizes">Set maximum allowed TCP window sizes</a></h1>
 <p id="rfc.section.2.8.p.1">You may have to increase the largest allowed window size.</p>
 <pre>
-net.core.rmem_max = 16777216
-net.core.wmem_max = 16777216
+net.core.rmem_max = &lt;number of bytes&gt;
+net.core.wmem_max = &lt;number of bytes&gt;
 </pre>
 <h1 id="rfc.section.2.9"><a href="#rfc.section.2.9">2.9.</a> <a href="#timers-and-time-outs" id="timers-and-time-outs">Timers and time-outs</a></h1>
 <p id="rfc.section.2.9.p.1">Fail fast. Do not allow very long time-outs. Wasting several minutes for various network related attempts won&#8217;t make any users happy.</p>
