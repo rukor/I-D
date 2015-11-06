@@ -78,7 +78,7 @@ interpreted as described in <xref target="RFC2119"/>.</t>
 tunables and timeout periods to perform optimally. Actual values will depend
 on how you are scaling the platform, horizontally or vertically, and other
 connection semantics. Changing system limits and altering thresholds will
-change the behaviour of your web service and it’s dependencies, these
+change the behavior of your web service and it’s dependencies, these
 dependencies are usually common to other services running on the same system
 so good planning and testing is advised.</t>
 
@@ -158,8 +158,8 @@ much they are allowed to dynamically grow and shrink. On a Linux system, you
 can control it like:</t>
 
 <figure><artwork><![CDATA[
-net.ipv4.tcp_wmem = <minimum size <default size> <max size in bytes>
-net.ipv4.tcp_rmem = <minimum size <default size> <max size in bytes>
+net.ipv4.tcp_wmem = <minimum size> <default size> <max size in bytes>
+net.ipv4.tcp_rmem = <minimum size> <default size> <max size in bytes>
 ]]></artwork></figure>
 
 </section>
@@ -232,8 +232,8 @@ thresholds to tweak.</t>
 
 <t>Nagle’s Algorithm <xref target="RFC0896"/> is the mechanism that makes the TCP stack hold
 (small) outgoing packets for a short period of time so that it can
-potentionally merge that packet with the next outgoing one. It is optmized for
-throughput at the expence of latency.</t>
+potentially merge that packet with the next outgoing one. It is optimized for
+throughput at the expense of latency.</t>
 
 <t>HTTP/2 in particular requires that the client can send a packet back fast even
 during transfers that are perceived as single direction transfers. Even small
@@ -282,7 +282,7 @@ can be used to authenticate a connection rather than a single HTTP
 request. Two popular ones are NTLM and Negotiate.</t>
 
 <t>If such an authentication has been negotiated on a TCP connection, that
-connection can remain authenticated througout the rest of its life time. This
+connection can remain authenticated throughout the rest of its life time. This
 discrepancy with how other HTTP authentications work makes it important to
 handle these connections with care.</t>
 
@@ -469,7 +469,7 @@ successfully get re-used by a web browser is slim.</t>
     </references>
 
 
-<section anchor="acknowledgements" title="Acknowledgements">
+<section anchor="acknowledgments" title="Acknowledgments">
 
 <t>This specification builds upon previous work and help from
 Mark Nottingham, Craig Taylor</t>

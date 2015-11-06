@@ -408,7 +408,7 @@
 <link href="#rfc.references" rel="Chapter" title="9 References"/>
 <link href="#rfc.references.1" rel="Chapter" title="9.1 Normative References"/>
 <link href="#rfc.references.2" rel="Chapter" title="9.2 Informative References"/>
-<link href="#rfc.appendix.A" rel="Chapter" title="A Acknowledgements"/>
+<link href="#rfc.appendix.A" rel="Chapter" title="A Acknowledgments"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -508,7 +508,7 @@
 <li>9.   <a href="#rfc.references">References</a></li>
 <li>9.1.   <a href="#rfc.references.1">Normative References</a></li>
 <li>9.2.   <a href="#rfc.references.2">Informative References</a></li>
-<li>Appendix A.   <a href="#rfc.appendix.A">Acknowledgements</a></li>
+<li>Appendix A.   <a href="#rfc.appendix.A">Acknowledgments</a></li>
 <li><a href="#rfc.authors">Author's Address</a></li>
 
 
@@ -521,7 +521,7 @@
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#socket-planning" id="socket-planning">Socket planning</a></h1>
-<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need configuration changes to some system tunables and timeout periods to perform optimally. Actual values will depend on how you are scaling the platform, horizontally or vertically, and other connection semantics. Changing system limits and altering thresholds will change the behaviour of your web service and it&#8217;s dependencies, these dependencies are usually common to other services running on the same system so good planning and testing is advised.</p>
+<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need configuration changes to some system tunables and timeout periods to perform optimally. Actual values will depend on how you are scaling the platform, horizontally or vertically, and other connection semantics. Changing system limits and altering thresholds will change the behavior of your web service and it&#8217;s dependencies, these dependencies are usually common to other services running on the same system so good planning and testing is advised.</p>
 <p id="rfc.section.2.p.2">This is a list of values to consider and some general advice on how they can be modified on Linux systems.</p>
 <h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#number-of-open-files" id="number-of-open-files">Number of open files</a></h1>
 <p id="rfc.section.2.1.p.1">A modern HTTP server will serve a large number of TCP connections and in most systems each open socket equals on open file. Make sure that limit isn&#8217;t a bottle neck. In Linux, the limit can be raised like this:</p>
@@ -556,8 +556,8 @@ net.ipv4.tcp_tw_reuse = 1
 <h1 id="rfc.section.2.7"><a href="#rfc.section.2.7">2.7.</a> <a href="#give-the-the-tcp-stack-enough-memory" id="give-the-the-tcp-stack-enough-memory">Give the the TCP stack enough memory</a></h1>
 <p id="rfc.section.2.7.p.1">Systems meant to handle and serve a huge number of TCP connections at high speeds need a significant amount of memory for TCP stack buffers. On some systems you can tell the TCP stack what default buffer sizes to use and how much they are allowed to dynamically grow and shrink. On a Linux system, you can control it like:</p>
 <pre>
-net.ipv4.tcp_wmem = &lt;minimum size &lt;default size&gt; &lt;max size in bytes&gt;
-net.ipv4.tcp_rmem = &lt;minimum size &lt;default size&gt; &lt;max size in bytes&gt;
+net.ipv4.tcp_wmem = &lt;minimum size&gt; &lt;default size&gt; &lt;max size in bytes&gt;
+net.ipv4.tcp_rmem = &lt;minimum size&gt; &lt;default size&gt; &lt;max size in bytes&gt;
 </pre>
 <h1 id="rfc.section.2.8"><a href="#rfc.section.2.8">2.8.</a> <a href="#set-maximum-allowed-tcp-window-sizes" id="set-maximum-allowed-tcp-window-sizes">Set maximum allowed TCP window sizes</a></h1>
 <p id="rfc.section.2.8.p.1">You may have to increase the largest allowed window size.</p>
@@ -584,7 +584,7 @@ net.core.wmem_max = &lt;number of bytes&gt;
 <h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> <a href="#explicit-congestion-control" id="explicit-congestion-control">Explicit Congestion Control</a></h1>
 <p id="rfc.section.4.2.p.1">Apple <a href="https://developer.apple.com/videos/wwdc/2015/?id=719">deploying in iOS and OSX</a>.</p>
 <h1 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a> <a href="#nagles-algorithm" id="nagles-algorithm">Nagle&#8217;s Algorithm</a></h1>
-<p id="rfc.section.4.3.p.1">Nagle&#8217;s Algorithm <a href="#RFC0896">[RFC0896]</a> is the mechanism that makes the TCP stack hold (small) outgoing packets for a short period of time so that it can potentionally merge that packet with the next outgoing one. It is optmized for throughput at the expence of latency.</p>
+<p id="rfc.section.4.3.p.1">Nagle&#8217;s Algorithm <a href="#RFC0896">[RFC0896]</a> is the mechanism that makes the TCP stack hold (small) outgoing packets for a short period of time so that it can potentially merge that packet with the next outgoing one. It is optimized for throughput at the expense of latency.</p>
 <p id="rfc.section.4.3.p.2">HTTP/2 in particular requires that the client can send a packet back fast even during transfers that are perceived as single direction transfers. Even small delays in those sends can cause a significant performance loss.</p>
 <p id="rfc.section.4.3.p.3">HTTP/1.1 is also affected, especially when sending off a full request in a single write() system call.</p>
 <p id="rfc.section.4.3.p.4">In POSIX systems you switch it off like this:</p>
@@ -603,7 +603,7 @@ net.ipv4.tcp_slow_start_after_idle = 0
 </pre>
 <h1 id="rfc.section.5.2"><a href="#rfc.section.5.2">5.2.</a> <a href="#tcp-bound-authentications" id="tcp-bound-authentications">TCP-Bound Authentications</a></h1>
 <p id="rfc.section.5.2.p.1">There are several HTTP authentication mechanisms in use today that are used or can be used to authenticate a connection rather than a single HTTP request. Two popular ones are NTLM and Negotiate.</p>
-<p id="rfc.section.5.2.p.2">If such an authentication has been negotiated on a TCP connection, that connection can remain authenticated througout the rest of its life time. This discrepancy with how other HTTP authentications work makes it important to handle these connections with care.</p>
+<p id="rfc.section.5.2.p.2">If such an authentication has been negotiated on a TCP connection, that connection can remain authenticated throughout the rest of its life time. This discrepancy with how other HTTP authentications work makes it important to handle these connections with care.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#closing-connections" id="closing-connections">Closing connections</a></h1>
 <h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#half-close" id="half-close">Half-close</a></h1>
 <p id="rfc.section.6.1.p.1">Client or server is free to half-close after a request or response has been completed; or when there is no pending stream in HTTP/2.</p>
@@ -679,7 +679,7 @@ net.ipv4.tcp_slow_start_after_idle = 0
     </tr>
   </tbody>
 </table>
-<h1 id="rfc.appendix.A"><a href="#rfc.appendix.A">Appendix A.</a> <a href="#acknowledgements" id="acknowledgements">Acknowledgements</a></h1>
+<h1 id="rfc.appendix.A"><a href="#rfc.appendix.A">Appendix A.</a> <a href="#acknowledgments" id="acknowledgments">Acknowledgments</a></h1>
 <p id="rfc.section.A.p.1">This specification builds upon previous work and help from Mark Nottingham, Craig Taylor</p>
 <h1 id="rfc.authors">
   <a href="#rfc.authors">Author's Address</a>
