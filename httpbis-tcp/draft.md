@@ -61,7 +61,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
 interpreted as described in {{RFC2119}}.
 
-# Queues and memory sizes
+# Socket planning
 
 Your HTTP server or intermediary may need to tweak some sizes and timeout
 periods to perform optimally. Changing limits and altering thresholds will
@@ -74,7 +74,7 @@ A modern HTTP server will serve a large number of TCP connections and in most
 systems each open socket equals on open file. Make sure that limit isn't a
 bottle neck. In Linux, the limit can be raised like this:
 
-    fs.file-max = 2097152
+    fs.file-max = <number of files>
 
 ## Number of concurrent network messages
 
@@ -82,14 +82,14 @@ Raise the number of packets allowed to get queued when a particular interface
 receives packets faster than the kernel can process them. In Linux, this limit
 can be raised like this:
 
-    net.core.netdev_max_backlog = 16384
+    net.core.netdev_max_backlog = <number of packets>
 
 ## Number of incoming TCP SYNs allowed to backlog
 
 The number of new connection requests that are allowed to queue up in the
 kernel. In Linux, this limit can be raised like this:
 
-    net.core.somaxconn = 3000
+    net.core.somaxconn = <number>
 
 ## Use the whole port range for local ports
 
@@ -104,7 +104,7 @@ Lower the timeouts during which connections are in FIN-WAIT-2 state so that
 they can be re-used faster and thus increase number of simultaneous
 connections possible.
 
-    net.ipv4.tcp_fin_timeout = 15
+    net.ipv4.tcp_fin_timeout = <number of seconds>
 
 ## Re-use sockets in TIME_WAIT state
 
@@ -122,15 +122,15 @@ systems you can tell the TCP stack what default buffer sizes to use and how
 much they are allowed to dynamically grow and shrink. On a Linux system, you
 can control it like:
 
-    net.ipv4.tcp_wmem = 4096 65536 4194304
-    net.ipv4.tcp_rmem = 4096 87380 4194304
+    net.ipv4.tcp_wmem = <minimum size <default size> <max size in bytes>
+    net.ipv4.tcp_rmem = <minimum size <default size> <max size in bytes>
 
 ## Set maximum allowed TCP window sizes
 
 You may have to increase the largest allowed window size.
 
-    net.core.rmem_max = 16777216
-    net.core.wmem_max = 16777216
+    net.core.rmem_max = <number of bytes>
+    net.core.wmem_max = <number of bytes>
 
 ## Timers and time-outs
 
