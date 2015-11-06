@@ -67,7 +67,7 @@ Your HTTP server or intermediary may need configuration changes to some system
 tunables and timeout periods to perform optimally. Actual values will depend
 on how you are scaling the platform, horizontally or vertically, and other
 connection semantics. Changing system limits and altering thresholds will
-change the behaviour of your web service and it's dependencies, these
+change the behavior of your web service and it's dependencies, these
 dependencies are usually common to other services running on the same system
 so good planning and testing is advised.
 
@@ -128,8 +128,8 @@ systems you can tell the TCP stack what default buffer sizes to use and how
 much they are allowed to dynamically grow and shrink. On a Linux system, you
 can control it like:
 
-    net.ipv4.tcp_wmem = <minimum size <default size> <max size in bytes>
-    net.ipv4.tcp_rmem = <minimum size <default size> <max size in bytes>
+    net.ipv4.tcp_wmem = <minimum size> <default size> <max size in bytes>
+    net.ipv4.tcp_rmem = <minimum size> <default size> <max size in bytes>
 
 ## Set maximum allowed TCP window sizes
 
@@ -189,8 +189,8 @@ Apple [deploying in iOS and OSX](https://developer.apple.com/videos/wwdc/2015/?i
 
 Nagle's Algorithm {{RFC0896}} is the mechanism that makes the TCP stack hold
 (small) outgoing packets for a short period of time so that it can
-potentionally merge that packet with the next outgoing one. It is optmized for
-throughput at the expence of latency.
+potentially merge that packet with the next outgoing one. It is optimized for
+throughput at the expense of latency.
 
 HTTP/2 in particular requires that the client can send a packet back fast even
 during transfers that are perceived as single direction transfers. Even small
@@ -231,7 +231,7 @@ can be used to authenticate a connection rather than a single HTTP
 request. Two popular ones are NTLM and Negotiate.
 
 If such an authentication has been negotiated on a TCP connection, that
-connection can remain authenticated througout the rest of its life time. This
+connection can remain authenticated throughout the rest of its life time. This
 discrepancy with how other HTTP authentications work makes it important to
 handle these connections with care.
 
@@ -272,7 +272,7 @@ TBD
 
 --- back
 
-# Acknowledgements
+# Acknowledgments
 
 This specification builds upon previous work and help from
 Mark Nottingham, Craig Taylor
