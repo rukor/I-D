@@ -67,12 +67,12 @@ Your HTTP server or intermediary may need configuration changes to some system
 tunables and timeout periods to perform optimally. Actual values will depend
 on how you are scaling the platform, horizontally or vertically, and other
 connection semantics. Changing system limits and altering thresholds will
-change the behavior of your web service and its dependencies, these
-dependencies are usually common to other services running on the same system
+change the behavior of your web service and its dependencies. These
+dependencies are usually common to other services running on the same system,
 so good planning and testing is advised.
 
-This is a list of values to consider and some general advice on how they can
-be modified on Linux systems.
+This is a list of values to consider and some general advice on how those
+values can be modified on Linux systems.
 
 ## Number of open files
 
@@ -107,12 +107,12 @@ possible sockets, give it a larger range of local port numbers to use.
 ## Lower the TCP FIN timeout
 
 Lower the time during which connections are in FIN-WAIT-2 state so that they
-can be re-used faster and thus increase number of simultaneous connections
+can be reused faster and thus increase number of simultaneous connections
 possible.
 
     net.ipv4.tcp_fin_timeout = <number of seconds>
 
-## Re-use sockets in TIME_WAIT state
+## Reuse sockets in TIME_WAIT state
 
 Especially when running backend servers that have edge servers fronting
 them to the Internet, allow reuse of sockets in TIME_WAIT state for new
@@ -120,7 +120,7 @@ connections when it is safe from the network stack’s perspective.
 
     net.ipv4.tcp_tw_reuse = 1
 
-## Give the the TCP stack enough memory
+## Give the TCP stack enough memory
 
 Systems meant to handle and serve a huge number of TCP connections at high
 speeds need a significant amount of memory for TCP stack buffers. On some
@@ -138,9 +138,9 @@ You may have to increase the largest allowed window size.
     net.core.rmem_max = <number of bytes>
     net.core.wmem_max = <number of bytes>
 
-## Timers and time-outs
+## Timers and timeouts
 
-Fail fast. Do not allow very long time-outs. Wasting several minutes for
+Fail fast. Do not allow very long timeouts. Wasting several minutes for
 various network related attempts won't make any users happy.
 
 Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations
@@ -231,7 +231,7 @@ can be used to authenticate a connection rather than a single HTTP
 request. Two popular ones are NTLM and Negotiate.
 
 If such an authentication has been negotiated on a TCP connection, that
-connection can remain authenticated throughout the rest of its life time. This
+connection can remain authenticated throughout the rest of its lifetime. This
 discrepancy with how other HTTP authentications work makes it important to
 handle these connections with care.
 
@@ -253,10 +253,10 @@ full close is expected following an error response to avoid RST on the client.
 
 ## Close Idle Connections
 
-Keeping open connections around for subsequent connection re-use is key for
+Keeping open connections around for subsequent connection reuse is key for
 many HTTP clients' performance. The value of an existing connection quickly
-degrades and already after a few minutes the chance that a connection will
-successfully get re-used by a web browser is slim.
+degrades and after only a few minutes the chance that a connection will
+successfully get reused by a web browser is slim.
 
 ## Tail Loss Probes
 
