@@ -4,8 +4,8 @@
 
 httpbis                                                      D. Stenberg
 Internet-Draft                                                   Mozilla
-Intended status: Best Current Practice                  November 6, 2015
-Expires: May 9, 2016
+Intended status: Best Current Practice                  November 7, 2015
+Expires: May 10, 2016
 
 
                           TCP Tuning for HTTP
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 9, 2016.
+   This Internet-Draft will expire on May 10, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 1]
+Stenberg                  Expires May 10, 2016                  [Page 1]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -68,10 +68,10 @@ Table of Contents
      2.3.  Number of incoming TCP SYNs allowed to backlog  . . . . .   4
      2.4.  Use the whole port range for local ports  . . . . . . . .   4
      2.5.  Lower the TCP FIN timeout . . . . . . . . . . . . . . . .   4
-     2.6.  Re-use sockets in TIME_WAIT state . . . . . . . . . . . .   4
-     2.7.  Give the the TCP stack enough memory  . . . . . . . . . .   4
+     2.6.  Reuse sockets in TIME_WAIT state  . . . . . . . . . . . .   4
+     2.7.  Give the TCP stack enough memory  . . . . . . . . . . . .   4
      2.8.  Set maximum allowed TCP window sizes  . . . . . . . . . .   4
-     2.9.  Timers and time-outs  . . . . . . . . . . . . . . . . . .   5
+     2.9.  Timers and timeouts . . . . . . . . . . . . . . . . . . .   5
    3.  TCP handshake . . . . . . . . . . . . . . . . . . . . . . . .   5
      3.1.  TCP Fast Open . . . . . . . . . . . . . . . . . . . . . .   5
      3.2.  Initial Congestion Window . . . . . . . . . . . . . . . .   5
@@ -102,14 +102,14 @@ Table of Contents
 
    HTTP version 1.1 [RFC7230] as well as HTTP version 2 [RFC7540] are
    defined to use TCP [RFC0793], and their performance can depend
-   greatly upon how TCP is configured.  This document records best
+   greatly upon how TCP is configured.  This document records the best
    current practice for using HTTP over TCP, with a focus on improving
    end-user perceived performance.
 
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 2]
+Stenberg                  Expires May 10, 2016                  [Page 2]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -136,12 +136,12 @@ Internet-Draft                TCP for HTTP                 November 2015
    Actual values will depend on how you are scaling the platform,
    horizontally or vertically, and other connection semantics.  Changing
    system limits and altering thresholds will change the behavior of
-   your web service and it's dependencies, these dependencies are
-   usually common to other services running on the same system so good
+   your web service and its dependencies.  These dependencies are
+   usually common to other services running on the same system, so good
    planning and testing is advised.
 
    This is a list of values to consider and some general advice on how
-   they can be modified on Linux systems.
+   those values can be modified on Linux systems.
 
 2.1.  Number of open files
 
@@ -165,7 +165,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 3]
+Stenberg                  Expires May 10, 2016                  [Page 3]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -187,28 +187,28 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 2.5.  Lower the TCP FIN timeout
 
-   Lower the timeouts during which connections are in FIN-WAIT-2 state
-   so that they can be re-used faster and thus increase number of
+   Lower the time during which connections are in FIN-WAIT-2 state so
+   that they can be reused faster and thus increase number of
    simultaneous connections possible.
 
    net.ipv4.tcp_fin_timeout = <number of seconds>
 
-2.6.  Re-use sockets in TIME_WAIT state
+2.6.  Reuse sockets in TIME_WAIT state
 
-   Especially when running backend servers that are having edge servers
+   Especially when running backend servers that have edge servers
    fronting them to the Internet, allow reuse of sockets in TIME_WAIT
    state for new connections when it is safe from the network stack's
    perspective.
 
    net.ipv4.tcp_tw_reuse = 1
 
-2.7.  Give the the TCP stack enough memory
+2.7.  Give the TCP stack enough memory
 
    Systems meant to handle and serve a huge number of TCP connections at
    high speeds need a significant amount of memory for TCP stack
    buffers.  On some systems you can tell the TCP stack what default
    buffer sizes to use and how much they are allowed to dynamically grow
-   and shrink.  On a Linux system, you can control it like:
+   and shrink.  On a Linux system, you can control it like this:
 
    net.ipv4.tcp_wmem = <minimum size> <default size> <max size in bytes>
    net.ipv4.tcp_rmem = <minimum size> <default size> <max size in bytes>
@@ -221,7 +221,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 4]
+Stenberg                  Expires May 10, 2016                  [Page 4]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -229,11 +229,10 @@ Internet-Draft                TCP for HTTP                 November 2015
    net.core.rmem_max = <number of bytes>
    net.core.wmem_max = <number of bytes>
 
-2.9.  Timers and time-outs
+2.9.  Timers and timeouts
 
-   Fail fast.  Do not allow very long time-outs.  Wasting several
-   minutes for various network related attempts won't make any users
-   happy.
+   Fail fast.  Do not allow very long timeouts.  Wasting several minutes
+   for various network related attempts won't make any users happy.
 
    Avoid long-going TCP flows that are (seemingly) idle.  Use HTTP
    continuations instead, or redirects, 202s or similar.
@@ -277,7 +276,8 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 5]
+
+Stenberg                  Expires May 10, 2016                  [Page 5]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -333,7 +333,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 6]
+Stenberg                  Expires May 10, 2016                  [Page 6]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -346,15 +346,16 @@ Internet-Draft                TCP for HTTP                 November 2015
 
    If such an authentication has been negotiated on a TCP connection,
    that connection can remain authenticated throughout the rest of its
-   life time.  This discrepancy with how other HTTP authentications work
+   lifetime.  This discrepancy with how other HTTP authentications work
    makes it important to handle these connections with care.
 
 6.  Closing connections
 
 6.1.  Half-close
 
-   Client or server is free to half-close after a request or response
-   has been completed; or when there is no pending stream in HTTP/2.
+   The client or server is free to half-close after a request or
+   response has been completed; or when there is no pending stream in
+   HTTP/2.
 
    Half-closing is sometimes the only way for a server to make sure it
    closes down connections cleanly so that it doesn't accept more
@@ -369,11 +370,11 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 6.3.  Close Idle Connections
 
-   Keeping open connections around for subsequent connection re-use is
+   Keeping open connections around for subsequent connection reuse is
    key for many HTTP clients' performance.  The value of an existing
-   connection quickly degrades and already after a few minutes the
-   chance that a connection will successfully get re-used by a web
-   browser is slim.
+   connection quickly degrades and after only a few minutes the chance
+   that a connection will successfully get reused by a web browser is
+   slim.
 
 6.4.  Tail Loss Probes
 
@@ -388,8 +389,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-
-Stenberg                   Expires May 9, 2016                  [Page 7]
+Stenberg                  Expires May 10, 2016                  [Page 7]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -445,7 +445,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 8]
+Stenberg                  Expires May 10, 2016                  [Page 8]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -501,4 +501,4 @@ Author's Address
 
 
 
-Stenberg                   Expires May 9, 2016                  [Page 9]
+Stenberg                  Expires May 10, 2016                  [Page 9]

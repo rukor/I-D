@@ -382,10 +382,10 @@
 <link href="#rfc.section.2.3" rel="Chapter" title="2.3 Number of incoming TCP SYNs allowed to backlog"/>
 <link href="#rfc.section.2.4" rel="Chapter" title="2.4 Use the whole port range for local ports"/>
 <link href="#rfc.section.2.5" rel="Chapter" title="2.5 Lower the TCP FIN timeout"/>
-<link href="#rfc.section.2.6" rel="Chapter" title="2.6 Re-use sockets in TIME_WAIT state"/>
-<link href="#rfc.section.2.7" rel="Chapter" title="2.7 Give the the TCP stack enough memory"/>
+<link href="#rfc.section.2.6" rel="Chapter" title="2.6 Reuse sockets in TIME_WAIT state"/>
+<link href="#rfc.section.2.7" rel="Chapter" title="2.7 Give the TCP stack enough memory"/>
 <link href="#rfc.section.2.8" rel="Chapter" title="2.8 Set maximum allowed TCP window sizes"/>
-<link href="#rfc.section.2.9" rel="Chapter" title="2.9 Timers and time-outs"/>
+<link href="#rfc.section.2.9" rel="Chapter" title="2.9 Timers and timeouts"/>
 <link href="#rfc.section.3" rel="Chapter" title="3 TCP handshake"/>
 <link href="#rfc.section.3.1" rel="Chapter" title="3.1 TCP Fast Open"/>
 <link href="#rfc.section.3.2" rel="Chapter" title="3.2 Initial Congestion Window"/>
@@ -417,7 +417,7 @@
 
   <meta name="dct.creator" content="Stenberg, D." />
   <meta name="dct.identifier" content="urn:ietf:id:draft-stenberg-httpbis-tcp-00" />
-  <meta name="dct.issued" scheme="ISO8601" content="2015-11-6" />
+  <meta name="dct.issued" scheme="ISO8601" content="2015-11-7" />
   <meta name="dct.abstract" content="This document records current best practice for using all versions of HTTP over TCP." />
   <meta name="description" content="This document records current best practice for using all versions of HTTP over TCP." />
 
@@ -438,10 +438,10 @@
 </tr>
 <tr>
   <td class="left">Intended status: Best Current Practice</td>
-  <td class="right">November 6, 2015</td>
+  <td class="right">November 7, 2015</td>
 </tr>
 <tr>
-  <td class="left">Expires: May 9, 2016</td>
+  <td class="left">Expires: May 10, 2016</td>
   <td class="right"></td>
 </tr>
 
@@ -462,7 +462,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on May 9, 2016.</p>
+<p>This Internet-Draft will expire on May 10, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -482,10 +482,10 @@
 <li>2.3.   <a href="#rfc.section.2.3">Number of incoming TCP SYNs allowed to backlog</a></li>
 <li>2.4.   <a href="#rfc.section.2.4">Use the whole port range for local ports</a></li>
 <li>2.5.   <a href="#rfc.section.2.5">Lower the TCP FIN timeout</a></li>
-<li>2.6.   <a href="#rfc.section.2.6">Re-use sockets in TIME_WAIT state</a></li>
-<li>2.7.   <a href="#rfc.section.2.7">Give the the TCP stack enough memory</a></li>
+<li>2.6.   <a href="#rfc.section.2.6">Reuse sockets in TIME_WAIT state</a></li>
+<li>2.7.   <a href="#rfc.section.2.7">Give the TCP stack enough memory</a></li>
 <li>2.8.   <a href="#rfc.section.2.8">Set maximum allowed TCP window sizes</a></li>
-<li>2.9.   <a href="#rfc.section.2.9">Timers and time-outs</a></li>
+<li>2.9.   <a href="#rfc.section.2.9">Timers and timeouts</a></li>
 <li>3.   <a href="#rfc.section.3">TCP handshake</a></li>
 <li>3.1.   <a href="#rfc.section.3.1">TCP Fast Open</a></li>
 <li>3.2.   <a href="#rfc.section.3.2">Initial Congestion Window</a></li>
@@ -515,14 +515,14 @@
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
-<p id="rfc.section.1.p.1">HTTP version 1.1 <a href="#RFC7230">[RFC7230]</a> as well as HTTP version 2 <a href="#RFC7540">[RFC7540]</a> are defined to use TCP <a href="#RFC0793">[RFC0793]</a>, and their performance can depend greatly upon how TCP is configured. This document records best current practice for using HTTP over TCP, with a focus on improving end-user perceived performance.</p>
+<p id="rfc.section.1.p.1">HTTP version 1.1 <a href="#RFC7230">[RFC7230]</a> as well as HTTP version 2 <a href="#RFC7540">[RFC7540]</a> are defined to use TCP <a href="#RFC0793">[RFC0793]</a>, and their performance can depend greatly upon how TCP is configured. This document records the best current practice for using HTTP over TCP, with a focus on improving end-user perceived performance.</p>
 <p id="rfc.section.1.p.2">These practices are generally applicable to HTTP/1 as well as HTTP/2, although some may note particular impact or nuance regarding a particular protocol version.</p>
 <p id="rfc.section.1.p.3">There are countless scenarios, roles and setups where HTTP is being using so there can be no single specific &#8220;Right Answer&#8221; to most TCP questions. This document intends only to cover the most important areas of concern and suggest possible actions.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#notational-conventions" id="notational-conventions">Notational Conventions</a></h1>
 <p id="rfc.section.1.1.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#socket-planning" id="socket-planning">Socket planning</a></h1>
-<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need configuration changes to some system tunables and timeout periods to perform optimally. Actual values will depend on how you are scaling the platform, horizontally or vertically, and other connection semantics. Changing system limits and altering thresholds will change the behavior of your web service and it&#8217;s dependencies, these dependencies are usually common to other services running on the same system so good planning and testing is advised.</p>
-<p id="rfc.section.2.p.2">This is a list of values to consider and some general advice on how they can be modified on Linux systems.</p>
+<p id="rfc.section.2.p.1">Your HTTP server or intermediary may need configuration changes to some system tunables and timeout periods to perform optimally. Actual values will depend on how you are scaling the platform, horizontally or vertically, and other connection semantics. Changing system limits and altering thresholds will change the behavior of your web service and its dependencies. These dependencies are usually common to other services running on the same system, so good planning and testing is advised.</p>
+<p id="rfc.section.2.p.2">This is a list of values to consider and some general advice on how those values can be modified on Linux systems.</p>
 <h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#number-of-open-files" id="number-of-open-files">Number of open files</a></h1>
 <p id="rfc.section.2.1.p.1">A modern HTTP server will serve a large number of TCP connections and in most systems each open socket equals on open file. Make sure that limit isn&#8217;t a bottle neck. In Linux, the limit can be raised like this:</p>
 <pre>
@@ -544,17 +544,17 @@ net.core.somaxconn = &lt;number&gt;
 net.ipv4.ip_local_port_range = 1024 65535
 </pre>
 <h1 id="rfc.section.2.5"><a href="#rfc.section.2.5">2.5.</a> <a href="#lower-the-tcp-fin-timeout" id="lower-the-tcp-fin-timeout">Lower the TCP FIN timeout</a></h1>
-<p id="rfc.section.2.5.p.1">Lower the timeouts during which connections are in FIN-WAIT-2 state so that they can be re-used faster and thus increase number of simultaneous connections possible.</p>
+<p id="rfc.section.2.5.p.1">Lower the time during which connections are in FIN-WAIT-2 state so that they can be reused faster and thus increase number of simultaneous connections possible.</p>
 <pre>
 net.ipv4.tcp_fin_timeout = &lt;number of seconds&gt;
 </pre>
-<h1 id="rfc.section.2.6"><a href="#rfc.section.2.6">2.6.</a> <a href="#re-use-sockets-in-timewait-state" id="re-use-sockets-in-timewait-state">Re-use sockets in TIME_WAIT state</a></h1>
-<p id="rfc.section.2.6.p.1">Especially when running backend servers that are having edge servers fronting them to the Internet, allow reuse of sockets in TIME_WAIT state for new connections when it is safe from the network stack&#8217;s perspective.</p>
+<h1 id="rfc.section.2.6"><a href="#rfc.section.2.6">2.6.</a> <a href="#reuse-sockets-in-timewait-state" id="reuse-sockets-in-timewait-state">Reuse sockets in TIME_WAIT state</a></h1>
+<p id="rfc.section.2.6.p.1">Especially when running backend servers that have edge servers fronting them to the Internet, allow reuse of sockets in TIME_WAIT state for new connections when it is safe from the network stack&#8217;s perspective.</p>
 <pre>
 net.ipv4.tcp_tw_reuse = 1
 </pre>
-<h1 id="rfc.section.2.7"><a href="#rfc.section.2.7">2.7.</a> <a href="#give-the-the-tcp-stack-enough-memory" id="give-the-the-tcp-stack-enough-memory">Give the the TCP stack enough memory</a></h1>
-<p id="rfc.section.2.7.p.1">Systems meant to handle and serve a huge number of TCP connections at high speeds need a significant amount of memory for TCP stack buffers. On some systems you can tell the TCP stack what default buffer sizes to use and how much they are allowed to dynamically grow and shrink. On a Linux system, you can control it like:</p>
+<h1 id="rfc.section.2.7"><a href="#rfc.section.2.7">2.7.</a> <a href="#give-the-tcp-stack-enough-memory" id="give-the-tcp-stack-enough-memory">Give the TCP stack enough memory</a></h1>
+<p id="rfc.section.2.7.p.1">Systems meant to handle and serve a huge number of TCP connections at high speeds need a significant amount of memory for TCP stack buffers. On some systems you can tell the TCP stack what default buffer sizes to use and how much they are allowed to dynamically grow and shrink. On a Linux system, you can control it like this:</p>
 <pre>
 net.ipv4.tcp_wmem = &lt;minimum size&gt; &lt;default size&gt; &lt;max size in bytes&gt;
 net.ipv4.tcp_rmem = &lt;minimum size&gt; &lt;default size&gt; &lt;max size in bytes&gt;
@@ -565,8 +565,8 @@ net.ipv4.tcp_rmem = &lt;minimum size&gt; &lt;default size&gt; &lt;max size in by
 net.core.rmem_max = &lt;number of bytes&gt;
 net.core.wmem_max = &lt;number of bytes&gt;
 </pre>
-<h1 id="rfc.section.2.9"><a href="#rfc.section.2.9">2.9.</a> <a href="#timers-and-time-outs" id="timers-and-time-outs">Timers and time-outs</a></h1>
-<p id="rfc.section.2.9.p.1">Fail fast. Do not allow very long time-outs. Wasting several minutes for various network related attempts won&#8217;t make any users happy.</p>
+<h1 id="rfc.section.2.9"><a href="#rfc.section.2.9">2.9.</a> <a href="#timers-and-timeouts" id="timers-and-timeouts">Timers and timeouts</a></h1>
+<p id="rfc.section.2.9.p.1">Fail fast. Do not allow very long timeouts. Wasting several minutes for various network related attempts won&#8217;t make any users happy.</p>
 <p id="rfc.section.2.9.p.2">Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations instead, or redirects, 202s or similar.</p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#tcp-handshake" id="tcp-handshake">TCP handshake</a></h1>
 <h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#tcp-fast-open" id="tcp-fast-open">TCP Fast Open</a></h1>
@@ -603,15 +603,15 @@ net.ipv4.tcp_slow_start_after_idle = 0
 </pre>
 <h1 id="rfc.section.5.2"><a href="#rfc.section.5.2">5.2.</a> <a href="#tcp-bound-authentications" id="tcp-bound-authentications">TCP-Bound Authentications</a></h1>
 <p id="rfc.section.5.2.p.1">There are several HTTP authentication mechanisms in use today that are used or can be used to authenticate a connection rather than a single HTTP request. Two popular ones are NTLM and Negotiate.</p>
-<p id="rfc.section.5.2.p.2">If such an authentication has been negotiated on a TCP connection, that connection can remain authenticated throughout the rest of its life time. This discrepancy with how other HTTP authentications work makes it important to handle these connections with care.</p>
+<p id="rfc.section.5.2.p.2">If such an authentication has been negotiated on a TCP connection, that connection can remain authenticated throughout the rest of its lifetime. This discrepancy with how other HTTP authentications work makes it important to handle these connections with care.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#closing-connections" id="closing-connections">Closing connections</a></h1>
 <h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#half-close" id="half-close">Half-close</a></h1>
-<p id="rfc.section.6.1.p.1">Client or server is free to half-close after a request or response has been completed; or when there is no pending stream in HTTP/2.</p>
+<p id="rfc.section.6.1.p.1">The client or server is free to half-close after a request or response has been completed; or when there is no pending stream in HTTP/2.</p>
 <p id="rfc.section.6.1.p.2">Half-closing is sometimes the only way for a server to make sure it closes down connections cleanly so that it doesn&#8217;t accept more requests while still allowing clients to receive the ongoing responses.</p>
 <h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#abort" id="abort">Abort</a></h1>
 <p id="rfc.section.6.2.p.1">No client abort for HTTP/1.1 after the request body has been sent. Delayed full close is expected following an error response to avoid RST on the client.</p>
 <h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#close-idle-connections" id="close-idle-connections">Close Idle Connections</a></h1>
-<p id="rfc.section.6.3.p.1">Keeping open connections around for subsequent connection re-use is key for many HTTP clients&#8217; performance. The value of an existing connection quickly degrades and already after a few minutes the chance that a connection will successfully get re-used by a web browser is slim.</p>
+<p id="rfc.section.6.3.p.1">Keeping open connections around for subsequent connection reuse is key for many HTTP clients&#8217; performance. The value of an existing connection quickly degrades and after only a few minutes the chance that a connection will successfully get reused by a web browser is slim.</p>
 <h1 id="rfc.section.6.4"><a href="#rfc.section.6.4">6.4.</a> <a href="#tail-loss-probes" id="tail-loss-probes">Tail Loss Probes</a></h1>
 <p>
   <a href="http://tools.ietf.org/html/draft-dukkipati-tcpm-tcp-loss-probe-01">draft</a>

@@ -52,8 +52,8 @@
 
 <t>HTTP version 1.1 <xref target="RFC7230"/> as well as HTTP version 2 <xref target="RFC7540"/> are defined
 to use TCP <xref target="RFC0793"/>, and their performance can depend greatly upon how TCP
-is configured. This document records best current practice for using HTTP over
-TCP, with a focus on improving end-user perceived performance.</t>
+is configured. This document records the best current practice for using HTTP
+over TCP, with a focus on improving end-user perceived performance.</t>
 
 <t>These practices are generally applicable to HTTP/1 as well as HTTP/2, although
 some may note particular impact or nuance regarding a particular protocol
@@ -78,12 +78,12 @@ interpreted as described in <xref target="RFC2119"/>.</t>
 tunables and timeout periods to perform optimally. Actual values will depend
 on how you are scaling the platform, horizontally or vertically, and other
 connection semantics. Changing system limits and altering thresholds will
-change the behavior of your web service and it’s dependencies, these
-dependencies are usually common to other services running on the same system
+change the behavior of your web service and its dependencies. These
+dependencies are usually common to other services running on the same system,
 so good planning and testing is advised.</t>
 
-<t>This is a list of values to consider and some general advice on how they can
-be modified on Linux systems.</t>
+<t>This is a list of values to consider and some general advice on how those
+values can be modified on Linux systems.</t>
 
 <section anchor="number-of-open-files" title="Number of open files">
 
@@ -129,18 +129,18 @@ net.ipv4.ip_local_port_range = 1024 65535
 </section>
 <section anchor="lower-the-tcp-fin-timeout" title="Lower the TCP FIN timeout">
 
-<t>Lower the timeouts during which connections are in FIN-WAIT-2 state so that
-they can be re-used faster and thus increase number of simultaneous
-connections possible.</t>
+<t>Lower the time during which connections are in FIN-WAIT-2 state so that they
+can be reused faster and thus increase number of simultaneous connections
+possible.</t>
 
 <figure><artwork><![CDATA[
 net.ipv4.tcp_fin_timeout = <number of seconds>
 ]]></artwork></figure>
 
 </section>
-<section anchor="re-use-sockets-in-timewait-state" title="Re-use sockets in TIME_WAIT state">
+<section anchor="reuse-sockets-in-timewait-state" title="Reuse sockets in TIME_WAIT state">
 
-<t>Especially when running backend servers that are having edge servers fronting
+<t>Especially when running backend servers that have edge servers fronting
 them to the Internet, allow reuse of sockets in TIME_WAIT state for new
 connections when it is safe from the network stack’s perspective.</t>
 
@@ -149,13 +149,13 @@ net.ipv4.tcp_tw_reuse = 1
 ]]></artwork></figure>
 
 </section>
-<section anchor="give-the-the-tcp-stack-enough-memory" title="Give the the TCP stack enough memory">
+<section anchor="give-the-tcp-stack-enough-memory" title="Give the TCP stack enough memory">
 
 <t>Systems meant to handle and serve a huge number of TCP connections at high
 speeds need a significant amount of memory for TCP stack buffers. On some
 systems you can tell the TCP stack what default buffer sizes to use and how
 much they are allowed to dynamically grow and shrink. On a Linux system, you
-can control it like:</t>
+can control it like this:</t>
 
 <figure><artwork><![CDATA[
 net.ipv4.tcp_wmem = <minimum size> <default size> <max size in bytes>
@@ -173,9 +173,9 @@ net.core.wmem_max = <number of bytes>
 ]]></artwork></figure>
 
 </section>
-<section anchor="timers-and-time-outs" title="Timers and time-outs">
+<section anchor="timers-and-timeouts" title="Timers and timeouts">
 
-<t>Fail fast. Do not allow very long time-outs. Wasting several minutes for
+<t>Fail fast. Do not allow very long timeouts. Wasting several minutes for
 various network related attempts won’t make any users happy.</t>
 
 <t>Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations
@@ -282,7 +282,7 @@ can be used to authenticate a connection rather than a single HTTP
 request. Two popular ones are NTLM and Negotiate.</t>
 
 <t>If such an authentication has been negotiated on a TCP connection, that
-connection can remain authenticated throughout the rest of its life time. This
+connection can remain authenticated throughout the rest of its lifetime. This
 discrepancy with how other HTTP authentications work makes it important to
 handle these connections with care.</t>
 
@@ -292,7 +292,7 @@ handle these connections with care.</t>
 
 <section anchor="half-close" title="Half-close">
 
-<t>Client or server is free to half-close after a request or response has been
+<t>The client or server is free to half-close after a request or response has been
 completed; or when there is no pending stream in HTTP/2.</t>
 
 <t>Half-closing is sometimes the only way for a server to make sure it closes
@@ -308,10 +308,10 @@ full close is expected following an error response to avoid RST on the client.</
 </section>
 <section anchor="close-idle-connections" title="Close Idle Connections">
 
-<t>Keeping open connections around for subsequent connection re-use is key for
+<t>Keeping open connections around for subsequent connection reuse is key for
 many HTTP clients’ performance. The value of an existing connection quickly
-degrades and already after a few minutes the chance that a connection will
-successfully get re-used by a web browser is slim.</t>
+degrades and after only a few minutes the chance that a connection will
+successfully get reused by a web browser is slim.</t>
 
 </section>
 <section anchor="tail-loss-probes" title="Tail Loss Probes">
