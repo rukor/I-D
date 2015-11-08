@@ -77,7 +77,7 @@ values can be modified on Linux systems.
 ## Number of open files
 
 A modern HTTP server will serve a large number of TCP connections and in most
-systems each open socket equals on open file. Make sure that limit isn't a
+systems each open socket equals an open file. Make sure that limit isn't a
 bottle neck. In Linux, the limit can be raised like this:
 
     fs.file-max = <number of files>
