@@ -4,8 +4,8 @@
 
 httpbis                                                      D. Stenberg
 Internet-Draft                                                   Mozilla
-Intended status: Best Current Practice                  November 7, 2015
-Expires: May 10, 2016
+Intended status: Best Current Practice                  November 8, 2015
+Expires: May 11, 2016
 
 
                           TCP Tuning for HTTP
@@ -31,7 +31,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 10, 2016.
+   This Internet-Draft will expire on May 11, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 1]
+Stenberg                  Expires May 11, 2016                  [Page 1]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 2]
+Stenberg                  Expires May 11, 2016                  [Page 2]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -146,7 +146,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 2.1.  Number of open files
 
    A modern HTTP server will serve a large number of TCP connections and
-   in most systems each open socket equals on open file.  Make sure that
+   in most systems each open socket equals an open file.  Make sure that
    limit isn't a bottle neck.  In Linux, the limit can be raised like
    this:
 
@@ -165,7 +165,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 3]
+Stenberg                  Expires May 11, 2016                  [Page 3]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -221,7 +221,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 4]
+Stenberg                  Expires May 11, 2016                  [Page 4]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -277,7 +277,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 5]
+Stenberg                  Expires May 11, 2016                  [Page 5]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -333,7 +333,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 6]
+Stenberg                  Expires May 11, 2016                  [Page 6]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -389,7 +389,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 7]
+Stenberg                  Expires May 11, 2016                  [Page 7]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -445,7 +445,7 @@ Internet-Draft                TCP for HTTP                 November 2015
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 8]
+Stenberg                  Expires May 11, 2016                  [Page 8]
 
 Internet-Draft                TCP for HTTP                 November 2015
 
@@ -501,4 +501,4 @@ Author's Address
 
 
 
-Stenberg                  Expires May 10, 2016                  [Page 9]
+Stenberg                  Expires May 11, 2016                  [Page 9]
