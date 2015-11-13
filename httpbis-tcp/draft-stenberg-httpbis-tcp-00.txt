@@ -238,7 +238,7 @@ Internet-Draft                TCP for HTTP                 November 2015
    the platform might increase the probability of retransmissions and
    buffer induced delays within the path.  Extensions such as ECN
    coupled with AQM can help mitigate this undesirable behaviour
-   ([RFC7141]).
+   [RFC7141].
 
    [RFC7323] covers Window Scaling in greater detail.
 
