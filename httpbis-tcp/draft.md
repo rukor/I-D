@@ -32,6 +32,8 @@ informative:
   RFC6928:
   RFC0896:
   RFC4987:
+  RFC7141:
+  RFC7323:
 
 --- abstract
 
@@ -122,20 +124,38 @@ complete termination has occurred. There is no RFC that covers this behaviour.
 
     net.ipv4.tcp_tw_reuse = 1
 
-## Give the TCP stack enough memory
+## TCP socket buffer sizes and Window Scaling
 
 Systems meant to handle and serve a huge number of TCP connections at high
-speeds need a significant amount of memory for TCP stack buffers. On some
+speeds need a significant amount of memory for TCP socket buffers. On some
 systems you can tell the TCP stack what default buffer sizes to use and how
-much they are allowed to dynamically grow and shrink. On a Linux system, you
-can control it like this:
+much they are allowed to dynamically grow and shrink.  Window Scaling is
+typically linked to socket buffer sizes and on a Linux system can be
+controlled with the values:
 
     net.ipv4.tcp_wmem = <minimum size> <default size> <max size in bytes>
     net.ipv4.tcp_rmem = <minimum size> <default size> <max size in bytes>
 
+The minimum and default tend to require less proactive amendment than the
+maximum value. When deriving maximum values for use, you should consider the
+BDP (Bandwidth Delay Product) of the target environment and clients.  Consider
+also that 'read' and 'write' values do not require to be synchronised, as the
+BDP requirements for a load balancer or middle-box might be very different
+when acting as a sender or receiver.
+
+Allowing needlessly high values beyond the expected limitations of the
+platform might increase the probability of retransmissions and buffer induced
+delays within the path. Extensions such as ECN coupled with AQM can help
+mitigate this undesirable behaviour ({{RFC7141}}).
+
+{{RFC7323}} covers Window Scaling in greater detail.
+
 ## Set maximum allowed TCP window sizes
 
-You may have to increase the largest allowed window size.
+You may have to increase the largest allowed window size. Window scaling must
+be accommodated within the maximal values, however it is not uncommon to see
+the maximum definable higher than the scalable limit; these values can
+statically defined within socket parameters (SO_RCVBUF,SO_SNDBUF)
 
     net.core.rmem_max = <number of bytes>
     net.core.wmem_max = <number of bytes>
