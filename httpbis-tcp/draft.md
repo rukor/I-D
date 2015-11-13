@@ -116,9 +116,9 @@ sockets. The primitives for the assignment of these values were described in
 
 ## Reuse sockets in TIME_WAIT state
 
-Especially when running backend servers that have edge servers fronting
-them to the Internet, allow reuse of sockets in TIME_WAIT state for new
-connections when it is safe from the network stack’s perspective.
+When running backend servers on a managed, low latency network you might allow
+the reuse of sockets in TIME_WAIT state for new connections when a protocol
+complete termination has occurred. There is no RFC that covers this behaviour.
 
     net.ipv4.tcp_tw_reuse = 1
 
