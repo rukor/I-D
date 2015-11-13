@@ -106,9 +106,11 @@ possible sockets, give it a larger range of local port numbers to use.
 
 ## Lower the TCP FIN timeout
 
-Lower the time during which connections are in FIN-WAIT-2 state so that they
-can be reused faster and thus increase number of simultaneous connections
-possible.
+High connection completion rates will consume ephemeral ports quickly.  Lower
+the time during which connections are in FIN-WAIT-2/TIME_WAIT states so that
+they can be purged faster and thus maintain a maximal number of available
+sockets. The primitives for the assignment of these values were described in
+{{RFC0793}}, however significantly lower values are commonly used.
 
     net.ipv4.tcp_fin_timeout = <number of seconds>
 
