@@ -193,16 +193,21 @@ connection is not open.
 TFO requires both client and server support, and additionally requires
 application knowledge, because the data sent on the SYN needs to be
 idempotent. Therefore, TFO can only be used on idempotent, safe HTTP methods
-(e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS).
+(e.g., GET and HEAD), or with intervening negotiation (e.g, using TLS). It
+should be noted that TFO requires a secret to be defined on the server to
+mitigate security vulnerabilities it introduces. TFO therefore requires more
+server side deployment planning than other enhancements.
 
 Support for TFO is growing in client platforms, especially mobile, due to the
 significant performance advantage it gives.
 
 ## Initial Congestion Window
 
-{{RFC6928}} specifies an initial congestion window of 10, and is now fairly
-widely deployed server-side. There has been experimentation with larger
-initial windows, in combination with packet pacing.
+{{RFC6928}} specifies an initcwnd (initial congestion window) of 10, and is
+now fairly widely deployed server-side. There has been experimentation with
+larger initial windows, in combination with packet pacing. Many
+implementations allow initcwnd to be applied to specific routes which allows a
+greater degree of flexibility than some other TCP parameters.
 
 IW10 has been reported to perform fairly well even in high volume servers.
 
