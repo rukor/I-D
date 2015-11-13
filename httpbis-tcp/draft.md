@@ -146,7 +146,7 @@ when acting as a sender or receiver.
 Allowing needlessly high values beyond the expected limitations of the
 platform might increase the probability of retransmissions and buffer induced
 delays within the path. Extensions such as ECN coupled with AQM can help
-mitigate this undesirable behaviour ({{RFC7141}}).
+mitigate this undesirable behaviour {{RFC7141}}.
 
 {{RFC7323}} covers Window Scaling in greater detail.
 
