@@ -162,11 +162,25 @@ statically defined within socket parameters (SO_RCVBUF,SO_SNDBUF)
 
 ## Timers and timeouts
 
-Fail fast. Do not allow very long timeouts. Wasting several minutes for
-various network related attempts won't make any users happy.
+On a modern shared platform it can be common to plan for both long and short
+lived connections on the same implementation. However, the delivery of static
+assets and a 'web push' or 'long poll' service provide very different quality
+of service promises.
 
-Avoid long-going TCP flows that are (seemingly) idle. Use HTTP continuations
-instead, or redirects, 202s or similar.
+Fail 'fast': TCP resources can be highly contended. For fault tolerance
+reasons a server needs to be able to determine within a reasonable time frame
+whether a connection is still active or required. e.g. If static assets
+typically return in 100s of milliseconds, and users 'switch off' after <10s
+keeping timeouts of >30s make little sense and defining a 'quality of service'
+appropriate to the target platform is encouraged. On a shared platform with
+mixed workloads applications that require longer render times have various
+options such as HTTP continuations, redirects, 202s or similar.
+
+Clients and servers typically have many timeout options, a few notable options
+are: Connect(client), time to request(server), time to first byte(client),
+between bytes(server/client), total connection time(server/client). Some
+implementations merge these values into a single 'timeout' definition even
+when statistics are reported individually.
 
 # TCP handshake
 
