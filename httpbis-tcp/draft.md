@@ -52,7 +52,7 @@ These practices are generally applicable to HTTP/1 as well as HTTP/2, although
 some may note particular impact or nuance regarding a particular protocol
 version.
 
-There are countless scenarios, roles and setups where HTTP is being using so
+There are countless scenarios, roles and setups where HTTP is being used so
 there can be no single specific "Right Answer" to most TCP questions. This
 document intends only to cover the most important areas of concern and suggest
 possible actions.
